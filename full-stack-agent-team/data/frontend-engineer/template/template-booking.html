@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Grand Olympic Arena | SportSync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <style>
+        /* ---------- 极简设计令牌 (与主页风格统一) ---------- */
+        :root {
+            --p:#0049db; --pl:#dce1ff; --pc:#2962ff; --s:#f9f9ff; --sc:#fff;
+            --t:#111c2d; --tv:#434656; --sec:#9f4200; --tert:#008334;
+            --rad:1rem; --rad-lg:1.5rem; --shadow:0 4px 12px rgba(0,0,0,0.05);
+            --surface-card: #fff; --surface-high: #dee8ff; --outline:#c3c5d8;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: var(--s); color: var(--t); font:400 16px/1.5 'Inter',sans-serif;
+            padding-bottom: 70px; /* 为移动端底部导航栏留出空间 */
+        }
+        @media (min-width:768px) { body { padding-bottom: 0; } }
+        .container { max-width:1280px; margin:0 auto; padding:0 16px; }
+        @media (min-width:768px) { .container { padding:0 32px; } }
+
+        /* 头部 (复用主页风格) */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px; background: var(--sc); box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            position: sticky; top:0; z-index:40;
+        }
+        @media (min-width:768px) { .header { padding: 16px 32px; } }
+        .logo { font:700 24px/1 'Lexend',sans-serif; color:var(--p); letter-spacing:-0.01em; }
+        .nav-links { display: none; gap: 24px; margin-left: 24px; }
+        @media (min-width:768px) { .nav-links { display: flex; } }
+        .nav-link { font:600 14px/1 'Inter'; text-transform:uppercase; color:var(--tv); text-decoration:none; }
+        .nav-link.active { color:var(--p); border-bottom:2px solid var(--p); padding-bottom:4px; }
+        .header-actions { display:flex; gap:16px; align-items:center; }
+        .icon-btn { background:none; border:none; border-radius:999px; padding:8px; cursor:pointer; color:var(--tv); }
+        .icon-btn:hover { background:var(--surface-high); }
+
+        /* 主布局 (12列仿网格) */
+        .venue-layout { display: grid; gap: 32px; margin: 32px 0; }
+        @media (min-width:1024px) { .venue-layout { grid-template-columns: 2fr 1fr; } }
+
+        /* 图库区 */
+        .gallery-main { aspect-ratio:16/9; border-radius:var(--rad-lg); overflow:hidden; box-shadow:var(--shadow); position:relative; }
+        .gallery-main img { width:100%; height:100%; object-fit:cover; transition:0.5s; }
+        .thumb-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:16px; }
+        .thumb { aspect-ratio:1; border-radius:12px; overflow:hidden; border:1px solid var(--outline); background:#eee; }
+        .thumb img { width:100%; height:100%; object-fit:cover; }
+
+        /* 场馆信息 */
+        .badge { display:inline-block; background:rgba(0,103,39,0.1); color:var(--tert); padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600; }
+        .venue-title { font:600 32px/1.2 'Lexend',sans-serif; margin:8px 0 4px; }
+        .addr { display:flex; align-items:center; gap:6px; color:var(--tv); margin-bottom:24px; }
+        .stat-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin:24px 0; border-top:1px solid var(--outline); border-bottom:1px solid var(--outline); padding:20px 0; }
+        @media (min-width:640px) { .stat-grid { grid-template-columns:repeat(4,1fr); } }
+        .stat-card { background:var(--surface-high); padding:12px; border-radius:var(--rad); text-align:center; }
+        .stat-card span:first-child { font-size:28px; color:var(--p); margin-bottom:6px; display:block; }
+        .desc { color:var(--tv); line-height:1.6; margin:16px 0; }
+
+        /* 日历 & 时段 */
+        .section-header { display:flex; justify-content:space-between; align-items:center; margin:32px 0 20px; flex-wrap:wrap; }
+        .week-row { display:flex; gap:12px; overflow-x:auto; padding-bottom:8px; }
+        .date-chip { flex-shrink:0; width:88px; background:var(--surface-high); border-radius:var(--rad); text-align:center; padding:12px; cursor:pointer; transition:0.2s; }
+        .date-chip.active { background:var(--p); color:#fff; }
+        .time-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:20px; }
+        @media (min-width:640px) { .time-grid { grid-template-columns:repeat(4,1fr); } }
+        @media (min-width:1024px) { .time-grid { grid-template-columns:repeat(5,1fr); } }
+        .slot {
+            background: var(--surface-high); border:1px solid var(--outline); border-radius:var(--rad);
+            padding:12px; cursor:pointer; transition:0.2s; position:relative;
+        }
+        .slot.active-slot { background:var(--p); color:#fff; border-color:var(--p); }
+        .slot .time { font-weight:700; font-size:16px; }
+        .slot .price { font-size:12px; font-weight:600; color:var(--sec); }
+        .slot.active-slot .price { color:#fff; }
+        .slot.booked-slot { opacity:0.5; background:#e2e8f0; cursor:not-allowed; position:relative; overflow:hidden; }
+        .peak-badge { position:absolute; top:6px; right:6px; background:var(--sec); color:#fff; font-size:8px; padding:2px 6px; border-radius:12px; text-transform:uppercase; }
+
+        /* 右侧粘性卡片 */
+        .summary-card {
+            background: var(--surface-card); border:1px solid var(--outline); border-radius:1.5rem;
+            padding:24px; box-shadow:var(--shadow); position:sticky; top:100px;
+        }
+        .summary-empty { text-align:center; padding:32px 0; color:var(--tv); }
+        .summary-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--outline); }
+        .btn-confirm {
+            width:100%; background:var(--p); color:#fff; border:none; border-radius:var(--rad);
+            padding:14px; font-weight:700; font-size:16px; margin-top:20px; cursor:pointer; transition:0.2s;
+        }
+        .btn-confirm:disabled { background:var(--outline); cursor:not-allowed; }
+        .info-note { display:flex; gap:8px; margin-top:20px; background:#f0f3ff; padding:12px; border-radius:12px; font-size:12px; }
+
+        /* 底部页脚 (同主页风格) */
+        .footer {
+            background: var(--surface-high); margin-top: 64px; padding: 40px 0 24px; border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 32px; }
+        .footer-col h4 { font:600 16px/1.4 'Lexend',sans-serif; margin-bottom: 16px; color: var(--t); }
+        .footer-col a { display: block; color: var(--tv); text-decoration: none; font-size: 14px; margin-bottom: 10px; }
+        .footer-col a:hover { color: var(--p); }
+        .copyright { text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid rgba(115,118,135,0.2); font-size: 13px; color: var(--tv); }
+        @media (max-width: 767px) { .footer { padding: 32px 0 20px; } .footer-inner { flex-direction: column; gap: 24px; } }
+
+        /* 移动底部导航栏 */
+        .bottom-nav {
+            position: fixed; bottom:0; left:0; width:100%; background:var(--surface-card); box-shadow:0 -4px 12px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-around; padding: 10px 16px; z-index: 50;
+        }
+        @media (min-width:768px) { .bottom-nav { display: none; } }
+        .nav-mob { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--tv); }
+        .nav-mob.active { background: var(--pc); color: #fff; padding: 4px 16px; border-radius: 999px; }
+
+        /* 工具 */
+        .flex-between { display:flex; justify-content:space-between; align-items:center; }
+        .mt-4 { margin-top:16px; }
+        .mb-2 { margin-bottom:8px; }
+        .hidden { display:none; }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div style="display:flex; align-items:center; gap:8px;">
+        <span class="logo">SportSync</span>
+        <div class="nav-links">
+            <a href="#" class="nav-link active">Explore</a>
+            <a href="#" class="nav-link">My Bookings</a>
+            <a href="#" class="nav-link">Community</a>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button class="icon-btn"><span class="material-symbols-outlined">notifications</span></button>
+        <button class="icon-btn"><span class="material-symbols-outlined">account_circle</span></button>
+    </div>
+</header>
+
+<main class="container">
+    <div class="venue-layout">
+        <!-- 左栏 -->
+        <div>
+            <!-- 画廊区域 -->
+            <div class="gallery-main"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvd8Os3Lqa7nIsUNakF5yUx5zl5GT_XbBftC8AAA-OtzZu8M3GdOMRntwUL1tpWe4j_wJ-KN3tpta5Oy6K1zJvUBRQbAbp4-bWgXDDC3AK-1uvb3tnDWj0X-qVfh5Yc24vX3r3AtmNN9QPoHpL9_e4S8a_clnfzEWOlLYYwzyexsLqpb8gFQONlIduwriQDP3G2XuRJPygthn7QsA-EEre1xicpATEnMS-dbdvgrLea6sHzQl-v2lMzXHgIh5nAyiOSBJ5wFFsJ6s" alt="Stadium"></div>
+            <div class="thumb-grid">
+                <div class="thumb"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCl2cp8A6ebRsoR65ulTthR8_z5jsaqyXAO7klJJUppXbwJh5LN6DufH_n_6ODlx_4MupGeVn5VbTehdvfuQJzUJkRqy-FMR67MnqB55btem3_VEXT7RUuoS9KFLI8LhAoBsJk4kh7YQH_izuHwBgyi3ZdtWAjdUTr0flwawOrMKoHu-9qJyJR_EBjnojm2Sutmny-qJ71VSJTW_VVktHd6RRLAa8Z2kdWtJvdsEiwIG3zZeIGok6a8lZ3bAVBHfyqYXOR3VzMlZEA" alt="Locker"></div>
+                <div class="thumb"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuldzkx_k68_rPY4AK6Jc9isrB8YbqQ0E-1UYY9b4hsz8WJlGGLIu38v615z8SnzV_NKvFb6_yxYHYwFBk1moDN6fTvMFoDLhU6ELTUYIcD1AU7YuNgqvV_FfstwKt0oHwngYPNYyDSvIJ5vXkynTBtbAXsEZ0MCi2vjD3qtwcDfECHjdfxp6l7kkoyYwXDPsXWAlpCiTIHdvKdDW2dYiHeSXVpH7g0Cc-Lfzaudds-OyTJLI7gIuKW5c4GH_Tn3CtepYOkXa1sPU" alt="Floodlights"></div>
+                <div class="thumb"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2UKzg_UwKHOKP_SBRz1fkJKBk71VhfJ80y9ur-5BCwSDw5lQg9_NeajetVU6QDW6ZGe7E9AwL6W91KESPhH2hVregi-wcwq0SFifeG1rgT3SB-bw5T-XhMd_yprS5iCguDaycAws0EIY4Pdy8TlHxvaf3ovwTUe9UuZPu-wKVL_VkIutt3BmKr33NIMvlQGm4fJG3NRie1WKJhfEJiIh8BODhirisfvL0O2uXnyB0K5BO3_UBhMicsh5jXy4osS3YqD-7Gn9fy00" alt="Seats"></div>
+                <div class="thumb"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXFLUrTgqmHYI5-ca5BU6jZ8NgNqAaNsqzHLGG_QTMsX-83UBGZyAHVImJuLOizxoM4jWhY8STZGWNBnBS82uwHxFWZThdt3DdExKPvjSpMBPF0WqJ9vr9KA1kYZBJtUBjy7Kt08KaAZrUfC9RTdePtwlTToZJED33ZeAybjT1xviB_7absUegEOv7xU7CjAkcKynZMSzBejQQH8Ca0hydF4kno8AQe__EjuX310grp_uukeGZMeuMf5efkk070xiIpvuVICjeQBw" alt="Cafe"></div>
+            </div>
+
+            <!-- 信息 -->
+            <div class="mt-4"><span class="badge">Available Now</span><h1 class="venue-title">Grand Olympic Arena</h1><div class="addr"><span class="material-symbols-outlined" style="font-size:18px;">location_on</span>1224 Sports Avenue, Metropolis Center</div></div>
+            <div class="stat-grid">
+                <div class="stat-card"><span class="material-symbols-outlined">groups</span><div style="font-size:12px;">Capacity</div><strong>5,000+</strong></div>
+                <div class="stat-card"><span class="material-symbols-outlined">straighten</span><div style="font-size:12px;">Size</div><strong>105x68m</strong></div>
+                <div class="stat-card"><span class="material-symbols-outlined">grass</span><div style="font-size:12px;">Surface</div><strong>Hybrid Grass</strong></div>
+                <div class="stat-card"><span class="material-symbols-outlined">bolt</span><div style="font-size:12px;">Lighting</div><strong>HD LED</strong></div>
+            </div>
+            <p class="desc">Experience the peak of athletic excellence at the Grand Olympic Arena. Engineered for high-intensity matches, our venue features a state-of-the-art hybrid grass surface that provides optimal traction and ball bounce. Equipped with professional-grade HD LED floodlighting, the arena ensures crystal-clear visibility for both players and spectators. Whether you're hosting a corporate tournament or a friendly league match, our facilities provide a championship atmosphere.</p>
+
+            <!-- 时段选择 -->
+            <div class="section-header"><h3 style="font:600 24px/1.2 'Lexend';">Select Time Slot</h3><div class="flex-between" style="gap:8px;"><button class="icon-btn"><span class="material-symbols-outlined">chevron_left</span></button><span>Oct 24 - Oct 30, 2023</span><button class="icon-btn"><span class="material-symbols-outlined">chevron_right</span></button></div></div>
+            <div class="week-row">
+                <div class="date-chip active">MON<br><strong>24</strong></div><div class="date-chip">TUE<br><strong>25</strong></div><div class="date-chip">WED<br><strong>26</strong></div><div class="date-chip">THU<br><strong>27</strong></div><div class="date-chip">FRI<br><strong>28</strong></div><div class="date-chip">SAT<br><strong>29</strong></div><div class="date-chip">SUN<br><strong>30</strong></div>
+            </div>
+            <div class="time-grid" id="timeSlotsContainer">
+                <!-- 时槽通过JS动态保留静态结构，但为了方便直接写好并绑定onclick，保留原有全部slot -->
+                <div class="slot" data-price="120" onclick="toggleSlot(this,120)"><div class="time">08:00 AM</div><div class="price">$120</div><div class="peak-badge">Peak</div></div>
+                <div class="slot" data-price="95" onclick="toggleSlot(this,95)"><div class="time">10:00 AM</div><div class="price">$95</div></div>
+                <div class="slot booked-slot"><div class="time">12:00 PM</div><div class="price">Booked</div></div>
+                <div class="slot" data-price="120" onclick="toggleSlot(this,120)"><div class="time">02:00 PM</div><div class="price">$120</div><div class="peak-badge">Peak</div></div>
+                <div class="slot" data-price="95" onclick="toggleSlot(this,95)"><div class="time">04:00 PM</div><div class="price">$95</div></div>
+                <div class="slot" data-price="120" onclick="toggleSlot(this,120)"><div class="time">06:00 PM</div><div class="price">$120</div><div class="peak-badge">Peak</div></div>
+                <div class="slot" data-price="140" onclick="toggleSlot(this,140)"><div class="time">08:00 PM</div><div class="price">$140</div><div class="peak-badge">Peak</div></div>
+                <div class="slot" data-price="95" onclick="toggleSlot(this,95)"><div class="time">10:00 PM</div><div class="price">$95</div></div>
+            </div>
+        </div>
+
+        <!-- 右侧粘性预订摘要 -->
+        <aside>
+            <div class="summary-card">
+                <h3 style="font:600 24px/1.2 'Lexend'; margin-bottom:16px;">Booking Summary</h3>
+                <div id="empty-selection" class="summary-empty"><span class="material-symbols-outlined" style="font-size:48px; color:var(--outline);">event_busy</span><p>No time slot selected yet.<br>Choose a time to see pricing.</p></div>
+                <div id="booking-details" class="hidden">
+                    <div class="summary-row"><div><div style="font-size:12px;">Date</div><strong>Monday, Oct 24</strong></div><span class="material-symbols-outlined" style="color:var(--p);">calendar_month</span></div>
+                    <div class="summary-row"><div><div style="font-size:12px;">Time</div><strong id="selected-time">08:00 AM - 09:30 AM</strong></div><span class="material-symbols-outlined" style="color:var(--p);">schedule</span></div>
+                    <div style="margin:12px 0;"><div class="flex-between"><span>Base Fare</span><span id="base-price">$0.00</span></div><div class="flex-between"><span>Platform Fee</span><span>$4.50</span></div><div class="flex-between" style="margin-top:16px; font-weight:700; font-size:24px;"><span>Total</span><span id="total-price">$0.00</span></div></div>
+                </div>
+                <button class="btn-confirm" id="confirm-btn" disabled>Confirm Booking</button>
+                <div class="info-note"><span class="material-symbols-outlined" style="color:var(--tert);">verified_user</span><span>Free cancellation up to 24 hours before the event. Instant confirmation upon successful payment.</span></div>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<!-- 底部页脚 -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-inner">
+            <div class="footer-col"><h4>SportSync</h4><a href="#">About Us</a><a href="#">Careers</a><a href="#">Press</a></div>
+            <div class="footer-col"><h4>Support</h4><a href="#">Help Center</a><a href="#">Contact Us</a><a href="#">FAQs</a></div>
+            <div class="footer-col"><h4>Legal</h4><a href="#">Terms of Service</a><a href="#">Privacy Policy</a><a href="#">Cookie Preferences</a></div>
+            <div class="footer-col"><h4>Follow Us</h4><a href="#">Instagram</a><a href="#">Twitter</a><a href="#">LinkedIn</a></div>
+        </div>
+        <div class="copyright">© 2025 SportSync. All rights reserved. Book your game, anytime.</div>
+    </div>
+</footer>
+
+<nav class="bottom-nav">
+    <a href="#" class="nav-mob active"><span class="material-symbols-outlined">search</span><span>Explore</span></a>
+    <a href="#" class="nav-mob"><span class="material-symbols-outlined">confirmation_number</span><span>My Bookings</span></a>
+    <a href="#" class="nav-mob"><span class="material-symbols-outlined">person</span><span>Profile</span></a>
+</nav>
+
+<script>
+    let selectedPrice = 0;
+
+    function toggleSlot(element, price) {
+        // 移除所有选中的类
+        document.querySelectorAll('.slot').forEach(slot => {
+            slot.classList.remove('active-slot');
+        });
+        element.classList.add('active-slot');
+
+        const detailsDiv = document.getElementById('booking-details');
+        const emptyDiv = document.getElementById('empty-selection');
+        const confirmBtn = document.getElementById('confirm-btn');
+        const timeDisplay = document.getElementById('selected-time');
+        const basePriceSpan = document.getElementById('base-price');
+        const totalSpan = document.getElementById('total-price');
+
+        const timeText = element.querySelector('.time')?.innerText || "08:00 AM";
+        // 计算结束时间 (+90分钟)
+        function addMinutes(timeStr, mins) {
+            let [time, period] = timeStr.split(' ');
+            let [hours, minutes] = time.split(':').map(Number);
+            if(period === 'PM' && hours !== 12) hours += 12;
+            if(period === 'AM' && hours === 12) hours = 0;
+            let total = hours*60 + minutes + mins;
+            let newH = Math.floor(total/60) % 24;
+            let newM = total % 60;
+            let newPeriod = newH >= 12 ? 'PM' : 'AM';
+            newH = newH % 12 || 12;
+            return `${newH}:${newM.toString().padStart(2,'0')} ${newPeriod}`;
+        }
+        const endTime = addMinutes(timeText, 90);
+        timeDisplay.innerText = `${timeText} - ${endTime}`;
+        basePriceSpan.innerText = `$${price.toFixed(2)}`;
+        totalSpan.innerText = `$${(price + 4.5).toFixed(2)}`;
+
+        detailsDiv.classList.remove('hidden');
+        emptyDiv.classList.add('hidden');
+        confirmBtn.disabled = false;
+        selectedPrice = price;
+    }
+
+    // 确认按钮简单交互
+    const btn = document.getElementById('confirm-btn');
+    btn.addEventListener('click', () => { alert(`Booking confirmed! Total $${(selectedPrice+4.5).toFixed(2)}`); });
+    // 日期芯片简单交互 (非核心但保留UI反馈)
+    document.querySelectorAll('.date-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+            document.querySelectorAll('.date-chip').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+</script>
+</body>
+</html>

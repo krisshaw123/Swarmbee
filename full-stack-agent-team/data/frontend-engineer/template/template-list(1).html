@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SportSync | 探索场馆</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <style>
+        /* ========== 极简设计令牌 (与 SportSync 全站统一) ========== */
+        :root {
+            --p:#0049db; --pl:#dce1ff; --pc:#2962ff; --s:#f9f9ff; --sc:#fff;
+            --t:#111c2d; --tv:#434656; --sec:#9f4200; --tert:#006727;
+            --rad:1rem; --rad-lg:1.5rem; --shadow:0 4px 12px rgba(0,0,0,0.05);
+            --surface-high:#dee8ff; --surface-low:#f0f3ff; --outline:#c3c5d8;
+            --error:#ba1a1a;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: var(--s); color: var(--t); font:400 16px/1.5 'Inter',sans-serif;
+            padding-bottom: 70px;
+        }
+        @media (min-width:768px) { body { padding-bottom: 0; } }
+
+        /* 容器 */
+        .container { max-width:1280px; margin:0 auto; padding:0 16px; }
+        @media (min-width:768px) { .container { padding:0 32px; } }
+
+        /* 头部导航 (复用) */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px; background: var(--sc); box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            position: sticky; top:0; z-index:40;
+        }
+        @media (min-width:768px) { .header { padding: 16px 32px; } }
+        .logo { font:700 24px/1 'Lexend',sans-serif; color:var(--p); letter-spacing:-0.01em; }
+        .nav-links { display: none; gap: 24px; margin-left: 24px; }
+        @media (min-width:768px) { .nav-links { display: flex; } }
+        .nav-link { font:600 14px/1 'Inter'; text-transform:uppercase; color:var(--tv); text-decoration:none; }
+        .nav-link.active { color:var(--p); border-bottom:2px solid var(--p); padding-bottom:4px; }
+        .search-wrap {
+            display: none; align-items: center; background: var(--surface-low);
+            border-radius: 999px; border:1px solid var(--outline); padding: 6px 12px;
+        }
+        @media (min-width:768px) { .search-wrap { display: flex; } }
+        .search-input { background: transparent; border: none; outline: none; width: 180px; }
+        .icon-btn { background: none; border: none; border-radius: 999px; padding: 8px; cursor: pointer; color: var(--tv); }
+        .icon-btn:hover { background: var(--surface-high); }
+
+        /* 快速筛选栏 (粘性) */
+        .filter-bar {
+            background: var(--sc); border-bottom: 1px solid var(--outline);
+            position: sticky; top: 64px; z-index: 30; padding: 12px 16px; overflow-x: auto;
+        }
+        @media (min-width:768px) { .filter-bar { padding: 12px 32px; } }
+        .filter-scroll { display: flex; gap: 16px; align-items: center; min-width: max-content; }
+        .filter-btn {
+            display: inline-flex; align-items: center; gap: 8px; background: var(--surface-high);
+            padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 600;
+            white-space: nowrap; border: none; cursor: pointer;
+        }
+        .filter-btn.active { background: var(--p); color: #fff; }
+        .filter-chip {
+            display: flex; align-items: center; gap: 6px; background: var(--surface-low);
+            padding: 6px 12px; border-radius: 12px; border:1px solid var(--outline);
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* 主布局 (侧边栏 + 网格) */
+        .layout { display: flex; flex-direction: column; gap: 32px; margin: 32px 0; }
+        @media (min-width:768px) { .layout { flex-direction: row; } }
+        .sidebar { width: 100%; }
+        @media (min-width:768px) { .sidebar { width: 260px; flex-shrink: 0; } }
+        .filter-group { margin-bottom: 32px; }
+        .filter-group h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; }
+        .radio-group { display: flex; flex-direction: column; gap: 12px; }
+        .radio-group label { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--tv); cursor: pointer; }
+        .reset-btn { width:100%; padding: 12px; border:1px solid var(--p); background: none; border-radius: var(--rad); font-weight:600; color:var(--p); cursor:pointer; margin-top: 16px; }
+        .reset-btn:hover { background:var(--pl); }
+
+        /* 右侧区域 */
+        .venue-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap:12px; }
+        .grid { display: grid; gap: 24px; grid-template-columns: 1fr; }
+        @media (min-width:640px) { .grid { grid-template-columns: repeat(2,1fr); } }
+
+        /* 场馆卡片 */
+        .card {
+            background: var(--sc); border-radius: 1rem; overflow: hidden;
+            box-shadow: var(--shadow); transition: 0.25s;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 20px rgba(0,73,219,0.12); }
+        .card-img { position: relative; aspect-ratio: 16/9; overflow: hidden; }
+        .card-img img { width: 100%; height: 100%; object-fit: cover; transition: 0.4s; }
+        .card:hover .card-img img { transform: scale(1.05); }
+        .venue-badge { position: absolute; top: 12px; left: 12px; background: var(--p); color:#fff; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+        .fav-btn { position: absolute; top: 12px; right: 12px; background: rgba(255,255,255,0.3); backdrop-filter: blur(8px); border-radius: 999px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
+        .card-body { padding: 1.25rem; }
+        .card-title { font:600 20px/1.3 'Lexend'; margin-bottom: 4px; }
+        .card-loc { display: flex; align-items: center; gap: 4px; font-size: 14px; color: var(--tv); margin-bottom: 12px; }
+        .rating { display: inline-flex; align-items: center; gap: 4px; background: rgba(0,103,39,0.1); padding: 4px 8px; border-radius: 8px; color: var(--tert); font-size: 12px; font-weight: 700; }
+        .tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+        .tag { background: var(--surface-high); padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--outline); padding-top: 16px; margin-top: 8px; }
+        .price { font:700 24px/1 'Lexend'; color: var(--p); }
+        .btn-detail { background: var(--pc); color:#fff; border: none; padding: 8px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+
+        /* 分页 */
+        .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 48px; flex-wrap: wrap; }
+        .page-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 12px; border:1px solid var(--outline); background:transparent; cursor:pointer; }
+        .page-btn.active { background: var(--p); color:#fff; border:none; }
+
+        /* 底部页脚 (统一) */
+        .footer {
+            background: var(--surface-high); margin-top: 64px; padding: 40px 0 24px; border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 32px; max-width: 1280px; margin:0 auto; padding:0 16px; }
+        @media (min-width:768px) { .footer-inner { padding:0 32px; } }
+        .footer-col h4 { font:600 16px/1.4 'Lexend'; margin-bottom: 16px; color: var(--t); }
+        .footer-col a { display: block; color: var(--tv); text-decoration: none; font-size: 14px; margin-bottom: 10px; }
+        .footer-col a:hover { color: var(--p); }
+        .copyright { text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid rgba(115,118,135,0.2); font-size: 13px; color: var(--tv); }
+
+        /* 移动底部导航 + FAB */
+        .bottom-nav {
+            position: fixed; bottom:0; left:0; width:100%; background: var(--sc); box-shadow:0 -4px 12px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-around; padding: 10px 16px; z-index: 50;
+        }
+        @media (min-width:768px) { .bottom-nav { display: none; } }
+        .nav-mob { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--tv); }
+        .nav-mob.active { background: var(--pc); color: #fff; padding: 4px 16px; border-radius: 999px; }
+        .fab {
+            position: fixed; right: 20px; bottom: 80px; background: var(--p); color:#fff;
+            width: 56px; height: 56px; border-radius: 999px; display: flex; align-items: center;
+            justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border: none; z-index: 45;
+        }
+        @media (min-width:768px) { .fab { display: none; } }
+    </style>
+</head>
+<body>
+
+<!-- 顶部栏 -->
+<header class="header">
+    <div style="display:flex; align-items:center; gap:8px;">
+        <span class="logo">SportSync</span>
+        <div class="nav-links">
+            <a href="#" class="nav-link active">Explore</a>
+            <a href="#" class="nav-link">My Bookings</a>
+            <a href="#" class="nav-link">Venues</a>
+        </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px;">
+        <div class="search-wrap"><span class="material-symbols-outlined" style="font-size:20px;">search</span><input type="text" class="search-input" placeholder="Search venues..."></div>
+        <button class="icon-btn"><span class="material-symbols-outlined">notifications</span></button>
+        <button class="icon-btn"><span class="material-symbols-outlined">account_circle</span></button>
+    </div>
+</header>
+
+<!-- 快速筛选栏 -->
+<div class="filter-bar hide-scrollbar">
+    <div class="filter-scroll" style="margin:0 auto; max-width:1280px;">
+        <div style="display:flex; gap:8px; border-right:1px solid var(--outline); padding-right:16px;">
+            <button class="filter-btn active"><span class="material-symbols-outlined">sports_basketball</span> Basketball</button>
+            <button class="filter-btn"><span class="material-symbols-outlined">sports_tennis</span> Tennis</button>
+            <button class="filter-btn"><span class="material-symbols-outlined">sports_soccer</span> Football</button>
+            <button class="filter-btn"><span class="material-symbols-outlined">sports_volleyball</span> Volleyball</button>
+        </div>
+        <div style="display:flex; gap:12px;">
+            <div class="filter-chip"><span class="material-symbols-outlined">calendar_today</span><span>Nov 15, 2024</span></div>
+            <div class="filter-chip"><span class="material-symbols-outlined">payments</span><span>$20 - $100+</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="layout">
+        <!-- 侧边栏 (桌面) -->
+        <aside class="sidebar">
+            <div class="filter-group"><h3>Distance</h3><div class="radio-group"><label><input type="radio" name="dist" checked> Within 5 km</label><label><input type="radio" name="dist"> Within 10 km</label><label><input type="radio" name="dist"> Anywhere</label></div></div>
+            <div class="filter-group"><h3>Rating</h3><div class="radio-group"><label><input type="checkbox"> ⭐⭐⭐⭐ & Up</label></div></div>
+            <div class="filter-group"><h3>Amenities</h3><div class="radio-group"><label><input type="checkbox"> Showers</label><label><input type="checkbox"> Parking</label><label><input type="checkbox"> Equipment Rental</label><label><input type="checkbox"> Locker Rooms</label></div></div>
+            <button class="reset-btn">Reset All Filters</button>
+        </aside>
+
+        <!-- 主内容场馆网格 -->
+        <div style="flex:1">
+            <div class="venue-header"><div><strong style="font-weight:700;">24 venues</strong> found in your area</div><div style="display:flex; gap:8px; align-items:center;"><span style="font-size:14px;">Sort by:</span><select style="background:transparent; border:none; font-weight:600; color:var(--p);"><option>Recommended</option><option>Price: Low to High</option></select></div></div>
+            <div class="grid">
+                <!-- 卡片1 -->
+                <div class="card"><div class="card-img"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGw1ewlCQrDFFUDgmYhyn9kLdpuOm4Z0SqFeyJPGe9NOgJfT8-PIk9-JywdZoo9v8CmkPpThdB2s9EV0NhCmFueoBWKe0Wf-6LG39ltMbYJO-bRPG1WA6oppShYy7-GBK5YbAl2hm-aGwjnm49SebmNxaakT8MGPUUjvuWjFQyK2Ag7W7ZOzuXIvS1kdbboV023C4OKIhmWiYgW3Ax0F7OudNVlJPiYhqDN18GxmDQeKL3qT8qozCMUReWzgSU9jyc2Q7Tf5ZOsRI" alt=""><div class="venue-badge">Indoor</div><button class="fav-btn"><span class="material-symbols-outlined">favorite</span></button></div><div class="card-body"><div><div class="card-title">Apex Arena Center</div><div class="card-loc"><span class="material-symbols-outlined" style="font-size:16px;">location_on</span>Downtown District, NY</div></div><div class="tags"><span class="tag">Pro-Turf</span><span class="tag">A/C</span><span class="tag">Locker Rooms</span></div><div class="card-footer"><div><span class="price">$45</span><span style="font-size:14px;"> / hour</span></div><button class="btn-detail">View Details</button></div></div></div>
+                <!-- 卡片2 -->
+                <div class="card"><div class="card-img"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQlh_3xqoR4CCw54u6QGpOeVD242k2XiRiDGlZwvRK3Uu25wN9_nb6DI1ImtszBedgvKkk8JKg960SEdQL_gbWR1lHrbmJw_J0ujy8ANsensGnFLn08ZiG9aPFVzJXASDiJfd3UnJrAKePLouFxBdl6e0Qgvcz-y6QpF6UbUZcwAZCDlSC8fWVW3lAaw9j7juP9v3f74PYvGcsp1pyPk6B0IT7XxxjngN8sElQZM_xvd8UmU7LCCZiyPnyqZEmlN6WkuzeuTZYrhE" alt=""><div class="venue-badge" style="background:var(--sec);">Outdoor</div><button class="fav-btn"><span class="material-symbols-outlined">favorite</span></button></div><div class="card-body"><div><div class="card-title">Skyline Tennis Courts</div><div class="card-loc"><span class="material-symbols-outlined" style="font-size:16px;">location_on</span>Brooklyn Heights, NY</div></div><div class="tags"><span class="tag">Blue Hardcourt</span><span class="tag">Night Lights</span><span class="tag">Parking</span></div><div class="card-footer"><div><span class="price">$32</span><span style="font-size:14px;"> / hour</span></div><button class="btn-detail">View Details</button></div></div></div>
+                <!-- 卡片3 -->
+                <div class="card"><div class="card-img"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0sVByTdh0S1V4RT7KcslYVUyE5LTjHBHF_Ll6PoaxLobSv3kSTxu24qfNOoNXnYFRtr0hCESdOW0PQMN9AFpiUwysFIweQKLtJxKYsVh9WDnOzwiWyT0dZfaQPrAbeQWVHN0yhEWcwH94DJwgWZfOtgmuq0qkNJSPdtOplZD3ShX2b8Qcmu37R5oJysRUwjqK0Pi1-HSwqh-HjleRKI2JvOCPkcaobFkWoPVx_0wqD8nDQUgtRu5dd792y7ezBhaPJ07A12OUhqQ" alt=""><div class="venue-badge" style="background:var(--tert);">Tournament Grade</div><button class="fav-btn"><span class="material-symbols-outlined">favorite</span></button></div><div class="card-body"><div><div class="card-title">Elite Soccer Complex</div><div class="card-loc"><span class="material-symbols-outlined" style="font-size:16px;">location_on</span>Queens Park, NY</div></div><div class="tags"><span class="tag">FIFA Turf</span><span class="tag">Showers</span><span class="tag">Vending</span></div><div class="card-footer"><div><span class="price">$80</span><span style="font-size:14px;"> / hour</span></div><button class="btn-detail">View Details</button></div></div></div>
+                <!-- 卡片4 -->
+                <div class="card"><div class="card-img"><img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7U-XDNX9Tw2rj3M_YK7QCFoX8S2rE7PBHK5i0Mno6GgU_uvsy85r2wVCnboVVuGxy5r-JosQxsgjty5gYPyfhPIv2tpwMJOj5WU8IsOn6kautU2nL5f4S2h82p8SndE1QaoAME2fqwk7VA0Om6x38ie-pI05FsCQbHQFFAo1W_p97ZVMiF_WQB92cpj4TM2K1Spq7FcAjD-0Nc0Kz7YWWb0kWC-2UcFIJUcQDv53R2N25mRg8fjhm5QSEdJHINUhkGhw0X8IGs9E" alt=""><div class="venue-badge">Multipurpose</div><button class="fav-btn"><span class="material-symbols-outlined">favorite</span></button></div><div class="card-body"><div><div class="card-title">Olympic Sports Hall</div><div class="card-loc"><span class="material-symbols-outlined" style="font-size:16px;">location_on</span>Jersey City, NJ</div></div><div class="tags"><span class="tag">Wooden Floor</span><span class="tag">Bleachers</span><span class="tag">Cafeteria</span></div><div class="card-footer"><div><span class="price">$55</span><span style="font-size:14px;"> / hour</span></div><button class="btn-detail">View Details</button></div></div></div>
+            </div>
+            <!-- 分页 -->
+            <div class="pagination">
+                <button class="page-btn"><span class="material-symbols-outlined">chevron_left</span></button>
+                <button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button>
+                <span style="padding:0 8px;">...</span><button class="page-btn">12</button>
+                <button class="page-btn"><span class="material-symbols-outlined">chevron_right</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 底部页脚 (统一) -->
+<footer class="footer">
+    <div class="footer-inner">
+        <div class="footer-col"><h4>SportSync</h4><a href="#">About Us</a><a href="#">Careers</a><a href="#">Press</a></div>
+        <div class="footer-col"><h4>Support</h4><a href="#">Help Center</a><a href="#">Contact Us</a><a href="#">FAQs</a></div>
+        <div class="footer-col"><h4>Legal</h4><a href="#">Terms of Service</a><a href="#">Privacy Policy</a><a href="#">Cookie Preferences</a></div>
+        <div class="footer-col"><h4>Follow Us</h4><a href="#">Instagram</a><a href="#">Twitter</a><a href="#">LinkedIn</a></div>
+    </div>
+    <div class="copyright">© 2025 SportSync. All rights reserved. Find your arena, anytime.</div>
+</footer>
+
+<!-- 移动底部导航 -->
+<nav class="bottom-nav">
+    <a href="#" class="nav-mob active"><span class="material-symbols-outlined">search</span><span>Explore</span></a>
+    <a href="#" class="nav-mob"><span class="material-symbols-outlined">confirmation_number</span><span>My Bookings</span></a>
+    <a href="#" class="nav-mob"><span class="material-symbols-outlined">person</span><span>Profile</span></a>
+</nav>
+<button class="fab"><span class="material-symbols-outlined">add</span></button>
+
+<script>
+    // 简单交互：卡片按钮提示
+    document.querySelectorAll('.btn-detail').forEach(btn => btn.addEventListener('click', () => alert('✨ 场馆详情页 (演示)')));
+    document.querySelectorAll('.fav-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); alert('❤️ 已添加到收藏'); }));
+    // 筛选器重置模拟
+    document.querySelector('.reset-btn')?.addEventListener('click', () => { alert('所有筛选条件已重置 (演示)'); });
+    // 移动端筛选按钮切换样式
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+</script>
+</body>
+</html>
