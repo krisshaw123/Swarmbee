@@ -104,6 +104,16 @@ openclaw gateway restart
 4.链接飞书
 5.开始运行
 
+---
+
+# 👥 Contributors
+
+| Role | GitHub |
+|:---|:---|
+| Lead | [@krisshaw123](https://github.com/krisshaw123) |
+| Core Dev | [@dingcheng-126](https://github.com/dingcheng-126) |
+| Intern(s) | [@SYJ000](https://github.com/SYJ000) |
+
 
 
 
