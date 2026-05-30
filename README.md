@@ -52,20 +52,20 @@ npx -y @larksuite/openclaw-lark install
 
 ## 第三步：安装 SwarmClaw
 
-下载当前仓库中的 `openclaw-lark.zip`，放到仓库根目录（与 `swarmclaw.sh` 同级）。
+下载当前仓库中的 `openclaw-lark.zip`，放到仓库根目录（与 `swarmbee.sh` 同级）。
 
 然后运行一体化部署脚本：
 
 ```bash
-chmod +x swarmclaw.sh
-./swarmclaw.sh
+chmod +x swarmbee.sh
+./swarmbee.sh
 ```
 
 脚本会自动检测你的环境，并显示菜单：
 
 ```
 ╔══════════════════════════════════════════════╗
-║           SwarmClaw — 一体化部署工具        ║
+║           Swarmbee — 一体化部署工具        ║
 ╚══════════════════════════════════════════════╝
 
 [INFO] 正在检测运行环境...
@@ -73,7 +73,7 @@ chmod +x swarmclaw.sh
 [OK] project 项目目录已就绪
 
   1) 部署 AI 软件工厂团队  ✓ 就绪
-  2) 安装与配置swarmclaw插件  ✓ 就绪
+  2) 安装与配置swarmbee插件  ✓ 就绪
   3) 全部执行（先部署团队，再配置飞书）
   4) 退出
 ```
