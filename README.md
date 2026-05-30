@@ -1,9 +1,10 @@
-# 🐺 SwarmClaw - Multi-Agent Collaboration Engine
-基于 OpenClaw 的多智能体协作实验平台 
+# Swarmbee - Multi-Agent Collaboration Plugin 
+> 基于 OpenClaw 的多智能体协作引擎，在飞书群为你带来“超级打工人团队”。
 
 # ✨ 这是什么？
 
-SwarmClaw 是一个基于飞书的多智能体轻量化插件，可以实现多个智能体的“自主推进、自主协商、自主完成”各类复杂任务。  
+Swarmbee 是一个轻量化的飞书多智能体插件。只需将机器人拉入群聊，多个 AI 角色（产品经理、工程师、分析师……）便会自动组队，在群内**自主推进**工作阶段、**自主协商**分歧、**自主完成**交付物——从调研、开发到分析报告，全程无需你一步步指挥。  
+它把「和 AI 聊天」变成了能落地交互的「超级打工人团队」。
 
 # 🎬 视频演示
 
@@ -97,12 +98,25 @@ openclaw gateway restart
 
 ---
 
-# 🚀 quick start
-1. **领取邀请码** → 访问 [幻境工坊](https://www.itswarmbee.com)，注册登录
-2.下载对应的team的zip文件
-3.本机一键配置
-4.链接飞书
-5.开始运行
+# 🚀 Quick Start
+
+如果你已经按照 [Install](#install) 完成了基础环境部署，想立刻拉起一个示例团队开始协作，只需三步：
+
+### 1. 获取团队配置包
+
+前往 [幻境工坊](https://www.itbee.com) 注册并登录，领取邀请码后下载你需要的 Team 压缩包（例如 `book-rent-team.zip`）。
+
+### 2. 本机一键部署
+
+```bash
+# 解压团队配置包
+unzip book-rent-team.zip -d my-team
+cd my-team
+
+# 赋予执行权限并运行一键部署脚本
+chmod +x deploy.sh
+./deploy.sh
+```
 
 ---
 
