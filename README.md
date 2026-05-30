@@ -50,7 +50,7 @@ curl -fsSL https://openclaw.ai/install.sh | bash
 npx -y @larksuite/openclaw-lark install
 ```
 
-## 第三步：安装 SwarmClaw
+## 第三步：安装 Swarmbee
 
 下载当前仓库中的 `openclaw-lark.zip`，放到仓库根目录（与 `swarmbee.sh` 同级）。
 
