@@ -132,9 +132,23 @@ openclaw gateway restart
 
 如果你已经按照 [Install](#install) 完成了基础环境部署，想立刻拉起一个示例团队开始协作，只需三步：
 
-### 1. 获取团队配置包
+### 1. 获取邀请码 & 团队配置包
 
-前往 [幻境工坊](https://www.itbee.com) 注册并登录，领取邀请码后下载你需要的 Team 压缩包（例如 `book-rent-team.zip`）。
+**邀请码领取方式：**
+1. 为本项目点一个 ⭐ **Star**，并 **Fork** 到你的 GitHub 仓库
+2. 截图（需包含 Star 和 Fork 状态）
+3. 加入官方微信群，在群内发送截图，即可领取专属邀请码
+
+> 微信群入口：[点击加入微信群](https://your-wechat-group-link) 或扫描下方二维码  
+> ![微信群二维码](path/to/wechat-qr.png)  
+> *（请将以上链接和图片替换为实际的入群方式）*
+
+拿到邀请码后：
+- 访问 [幻境工坊](https://www.itbee.com) 注册/登录
+- 使用邀请码激活团队权限
+- 下载你需要的 Team 压缩包（如 `book-rent-team.zip`）
+
+---
 
 ### 2. 本机一键部署
 
