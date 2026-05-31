@@ -135,8 +135,8 @@ openclaw gateway restart
 1. 为本项目点一个 ⭐ **Star**，并 **Fork** 到你的 GitHub 仓库
 2. 加入官方微信群，在群内发送截图( ⭐ **Star**)，即可领取专属邀请码
 
-> 微信群入口：[点击加入微信群](https://your-wechat-group-link) 或扫描下方二维码  
-> ![微信群二维码](path/to/wechat-qr.png)  
+> 微信群入口：[点击加入微信群]扫描下方二维码  
+> ![微信群二维码](videos/swarmbee_wechat_link.png)  
 > *（请将以上链接和图片替换为实际的入群方式）*
 
 拿到邀请码后：
