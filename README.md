@@ -127,9 +127,21 @@ openclaw gateway restart
 
 # 🚀 Quick Start
 
-如果你已经按照 [Install](#install) 完成了基础环境部署，想立刻拉起一个示例团队开始协作，只需三步：
+如果你已经按照 [Install](#install) 完成了基础环境部署，想立刻拉起一个示例团队开始协作，只需两步：
+### 1. 本机一键部署
 
-### 1. 获取邀请码 & 团队配置包
+```bash
+# 解压团队配置包
+unzip book-rent-team.zip -d my-team
+cd my-team
+
+# 赋予执行权限并运行一键部署脚本
+chmod +x install.sh
+./install.sh
+```
+
+
+### 2. 获取邀请码 & 团队配置包
 
 **邀请码领取方式：**
 1. 为本项目点一个 ⭐ **Star**，并 **Fork** 到你的 GitHub 仓库
@@ -144,19 +156,8 @@ openclaw gateway restart
 - 使用邀请码激活团队权限
 - 下载你需要的 Team 压缩包（如 `book-rent-team.zip`）
 
+***Caution: 也可下载完整install之后，自行配置AGENT团队！
 ---
-
-### 2. 本机一键部署
-
-```bash
-# 解压团队配置包
-unzip book-rent-team.zip -d my-team
-cd my-team
-
-# 赋予执行权限并运行一键部署脚本
-chmod +x install.sh
-./install.sh
-```
 
 ---
 # 🤝 参与贡献
