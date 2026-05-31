@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B端场馆管理 · SportFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#f8fafb;color:#1a2332}
+        .font-lexend{font-family:'Lexend',sans-serif}
+        :root{--b1:#0057b3;--b2:#0078d4;--g1:#00a86b;--text2:#5a6b7d;--rad:1rem;--rad-lg:1.5rem}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+        @keyframes ripple{to{transform:scale(4);opacity:0}}
+        @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+        .anim-fadeUp{animation:fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards;opacity:0}
+        .d1{animation-delay:0.05s}.d2{animation-delay:0.1s}.d3{animation-delay:0.15s}.d4{animation-delay:0.2s}
+        .skeleton{background:linear-gradient(90deg,#e5e7eb 25%,#f0f3ff 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:0.5rem}
+        .glass{background:rgba(255,255,255,0.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.2)}
+        .card-glow{transition:all 0.4s cubic-bezier(0.16,1,0.3,1)}
+        .card-glow:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,87,179,0.12)}
+        .ripple-btn{position:relative;overflow:hidden;cursor:pointer}
+        .ripple-btn .ripple-effect{position:absolute;border-radius:50%;background:rgba(255,255,255,0.35);transform:scale(0);animation:ripple 0.6s linear;pointer-events:none}
+
+        .sidebar{display:none;flex-direction:column;height:100vh;position:fixed;left:0;top:0;width:260px;background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);border-right:1px solid rgba(0,0,0,0.06);padding:1rem;z-index:50}
+        @media(min-width:768px){.sidebar{display:flex}}
+        .nav-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:1rem;color:#5a6b7d;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);cursor:pointer}
+        .nav-item.active{background:linear-gradient(135deg,var(--b1),var(--b2));color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(0,87,179,0.2)}
+        .nav-item:not(.active):hover{background:#eaf4ff;transform:translateX(4px)}
+        .main-content{min-height:100vh;padding:20px 16px 80px}
+        @media(min-width:768px){.main-content{margin-left:260px;padding:32px 40px 48px}}
+        .stat-card{background:#fff;border:1px solid #e5e7eb;border-radius:1.5rem;padding:1.25rem;transition:all 0.3s}
+        .stat-card:hover{box-shadow:0 8px 24px rgba(0,87,179,0.08)}
+        .card-table{background:#fff;border:1px solid #e5e7eb;border-radius:1.5rem;overflow:hidden;transition:all 0.3s}
+        .card-table:hover{box-shadow:0 4px 16px rgba(0,87,179,0.06)}
+        .table-wrapper{overflow-x:auto}
+        table{width:100%;border-collapse:collapse}
+        th{text-align:left;padding:1rem 1.5rem;background:#f8fafb;font-size:11px;font-weight:600;text-transform:uppercase;color:#5a6b7d;letter-spacing:0.05em}
+        td{padding:1rem 1.5rem;border-bottom:1px solid #e5e7eb;vertical-align:middle;transition:background 0.2s}
+        tr:last-child td{border-bottom:none}
+        tr:hover td{background:linear-gradient(90deg,#eaf4ff,#f0f9ff)}
+        .status-badge{display:inline-block;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700;transition:all 0.3s}
+        .status-active{background:#e8faf0;color:#00a86b}
+        .status-inactive{background:#fef2f2;color:#b91c1c}
+        .bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:rgba(255,255,255,0.9);backdrop-filter:blur(12px);box-shadow:0 -4px 20px rgba(0,0,0,0.06);display:flex;justify-content:space-around;padding:10px 16px;z-index:50}
+        @media(min-width:768px){.bottom-nav{display:none}}
+        .nav-mob{display:flex;flex-direction:column;align-items:center;text-decoration:none;color:#5a6b7d;cursor:pointer;transition:all 0.3s cubic-bezier(0.16,1,0.3,1)}
+        .nav-mob.active{background:linear-gradient(135deg,var(--b1),var(--b2));color:#fff;padding:4px 16px;border-radius:999px;transform:scale(1.05)}
+    </style>
+</head>
+<body>
+<div id="app">
+    <aside class="sidebar">
+        <div class="mb-6 px-2 anim-fadeUp"><div class="font-lexend text-xl font-bold" style="color:#1a2332">Sport<span style="color:var(--b1)">Flow</span></div><div style="font-size:12px;color:var(--text2)">场馆提供方 · 管理后台</div></div>
+        <nav style="display:flex;flex-direction:column;gap:8px;flex:1">
+            <div class="nav-item anim-fadeUp d1"><span class="material-symbols-outlined">stadium</span><span>我的场馆</span></div>
+            <div class="nav-item anim-fadeUp d2" @click="showAddDialog=true"><span class="material-symbols-outlined">add_circle</span><span>上架新场馆</span></div>
+            <hr class="my-2 border-gray-100 anim-fadeUp d3">
+            <div class="nav-item anim-fadeUp d4" @click="logout"><span class="material-symbols-outlined">logout</span><span>退出登录</span></div>
+        </nav>
+        <div class="border-t border-gray-100 pt-4 mt-auto anim-fadeUp">
+            <div style="display:flex;align-items:center;gap:12px"><div class="w-10 h-10 rounded-full flex items-center justify-center" style="background:linear-gradient(135deg,#eaf4ff,#dce8ff)"><span class="material-symbols-outlined" style="color:var(--b1)">storefront</span></div><div><div style="font-weight:600;font-size:14px">{{user.nickname||'场馆提供方'}}</div><div style="font-size:11px;color:var(--text2)">{{user.email}}</div></div></div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="flex justify-between items-center flex-wrap gap-4 mb-8 anim-fadeUp">
+            <div><h2 class="font-lexend text-3xl font-bold">我的场馆</h2><p style="color:var(--text2)">管理您上架的体育场馆</p></div>
+            <button @click="showAddDialog=true" class="ripple-btn inline-flex items-center gap-2 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 hover:shadow-xl hover:scale-[0.97]" style="background:linear-gradient(135deg,var(--b1),var(--g1))"><span class="material-symbols-outlined text-lg">add</span>上架新场馆</button>
+        </div>
+
+        <!-- 统计卡片 with loading skeleton -->
+        <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div v-for="i in 3" :key="i" class="stat-card"><div class="skeleton" style="height:20px;width:100px;margin-bottom:12px"></div><div class="skeleton" style="height:36px;width:80px"></div></div>
+        </div>
+        <div v-else class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 anim-fadeUp d2">
+            <div class="stat-card card-glow"><div class="flex items-center gap-3 mb-2"><span class="material-symbols-outlined" style="color:var(--b1)">stadium</span><span class="text-sm" style="color:var(--text2)">总场馆数</span></div><div class="font-lexend text-4xl font-bold">{{stats.total}}</div></div>
+            <div class="stat-card card-glow"><div class="flex items-center gap-3 mb-2"><span class="material-symbols-outlined" style="color:var(--g1)">check_circle</span><span class="text-sm" style="color:var(--text2)">上架中</span></div><div class="font-lexend text-4xl font-bold" style="color:var(--g1)">{{stats.active}}</div></div>
+            <div class="stat-card card-glow"><div class="flex items-center gap-3 mb-2"><span class="material-symbols-outlined" style="color:var(--b1)">groups</span><span class="text-sm" style="color:var(--text2)">总容量</span></div><div class="font-lexend text-4xl font-bold">{{stats.capacity}}</div></div>
+        </div>
+
+        <div class="card-table anim-fadeUp d3">
+            <div class="card-header flex justify-between items-center p-4 border-b border-gray-100 flex-wrap gap-3">
+                <h3 class="font-lexend font-bold text-lg">场馆列表</h3>
+                <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors" :class="searchFocus?'text-[var(--b1)]':'text-gray-400'"><span class="material-symbols-outlined text-lg">search</span></span>
+                <input v-model="searchQuery" placeholder="搜索场馆..." @focus="searchFocus=true" @blur="searchFocus=false" class="pl-10 pr-8 py-2 rounded-xl border border-gray-200 text-sm outline-none transition-all duration-300 w-48 focus:w-56 focus:border-[var(--b1)] focus:shadow-[0_0_0_3px_rgba(0,87,179,0.1)]"></div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr><th>场馆名称</th><th>类型 / 位置</th><th>容量 / 价格</th><th>状态</th><th class="text-right">操作</th></tr></thead>
+                    <tbody>
+                        <tr v-for="v in filteredVenues" :key="v.id" style="animation:slideIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards">
+                            <td><div style="font-weight:600;">{{v.name}}</div></td>
+                            <td><span class="text-xs px-2.5 py-0.5 rounded" style="background:linear-gradient(135deg,#eaf4ff,#e8faf0);color:var(--b1);font-weight:500">{{v.type}}</span><div style="font-size:12px;color:var(--text2);margin-top:2px">{{v.location}}</div></td>
+                            <td><div>{{v.capacity}} 人</div><div class="text-sm font-semibold" style="color:var(--b1)">¥{{v.price_per_hour}}/时</div></td>
+                            <td><span class="status-badge" :class="v.status==='active'?'status-active':'status-inactive'">{{v.status==='active'?'上架中':'已下架'}}</span></td>
+                            <td class="text-right"><div class="flex gap-2 justify-end"><button @click="editVenue(v)" class="inline-flex items-center gap-1 text-sm px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-[#eaf4ff] hover:border-[var(--b1)] hover:text-[var(--b1)] transition-all duration-200"><span class="material-symbols-outlined text-base">edit</span>编辑</button><button @click="toggleStatus(v)" class="inline-flex items-center gap-1 text-sm px-3 py-1.5 rounded-lg text-white transition-all duration-200" :class="v.status==='active'?'bg-red-500 hover:bg-red-600':'bg-green-600 hover:bg-green-700'"><span class="material-symbols-outlined text-base">{{v.status==='active'?'visibility_off':'visibility'}}</span>{{v.status==='active'?'下架':'上架'}}</button></div></td>
+                        </tr>
+                        <tr v-if="filteredVenues.length===0"><td colspan="5" class="text-center py-16"><span class="material-symbols-outlined text-5xl text-gray-200 mb-3 block">stadium</span><p style="color:var(--text2)">暂无场馆，点击上方「上架新场馆」开始</p><button @click="showAddDialog=true" class="mt-3 text-sm font-semibold underline-offset-2 hover:underline" style="color:var(--b1)">立即上架 →</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <el-dialog v-model="showAddDialog" :title="editingVenue?'编辑场馆':'上架新场馆'" width="560px" :close-on-click-modal="false" top="5vh">
+        <el-form :model="form" label-width="100px" class="pr-4">
+            <el-form-item label="场馆名称" required><el-input v-model="form.name" placeholder="如：阳光篮球馆"></el-input></el-form-item>
+            <el-row :gutter="16"><el-col :span="12"><el-form-item label="场馆类型"><el-select v-model="form.type" placeholder="选择类型" style="width:100%"><el-option v-for="t in ['篮球','足球','羽毛球','乒乓球','游泳','综合体育']" :key="t" :label="t" :value="t"></el-option></el-select></el-form-item></el-col><el-col :span="12"><el-form-item label="容量(人)"><el-input-number v-model="form.capacity" :min="1" :max="10000"></el-input-number></el-form-item></el-col></el-row>
+            <el-form-item label="位置" required><el-input v-model="form.location" placeholder="如：北京市朝阳区"></el-input></el-form-item>
+            <el-row :gutter="16"><el-col :span="12"><el-form-item label="时价(¥)"><el-input-number v-model="form.price_per_hour" :min="0" :precision="2" :step="10"></el-input-number></el-form-item></el-col></el-row>
+            <el-form-item label="场馆描述"><el-input type="textarea" v-model="form.description" :rows="3" placeholder="描述您的场馆设施、特色等"></el-input></el-form-item>
+        </el-form>
+        <template #footer>
+            <el-button @click="showAddDialog=false">取消</el-button>
+            <el-button type="primary" @click="saveVenue" :loading="saving" style="background:linear-gradient(135deg,#0057b3,#0078d4);border:none">{{editingVenue?'保存修改':'上架'}}</el-button>
+        </template>
+    </el-dialog>
+
+    <nav class="bottom-nav">
+        <a href="provider.html" class="nav-mob active"><span class="material-symbols-outlined">stadium</span><span>场馆</span></a>
+        <a href="#" class="nav-mob" @click.prevent="showAddDialog=true"><span class="material-symbols-outlined">add_circle</span><span>上架</span></a>
+        <a href="#" class="nav-mob" @click.prevent="logout"><span class="material-symbols-outlined">logout</span><span>退出</span></a>
+    </nav>
+</div>
+
+<script>
+    const{createApp,ref,computed,onMounted}=Vue;
+    const API_BASE='http://localhost:8000';
+    function authHeaders(){const t=localStorage.getItem('token');return{'Content-Type':'application/json',...(t?{'Authorization':`Bearer ${t}`}:{})}}
+    async function apiFetch(url,opts={}){const res=await fetch(`${API_BASE}${url}`,{...opts,headers:{...authHeaders(),...(opts.headers||{})}});const d=await res.json();if(!res.ok)throw new Error(d.detail||`请求失败 (${res.status})`);return d}
+    createApp({setup(){
+        const user=ref(JSON.parse(localStorage.getItem('user')||'{}'));const venues=ref([]);const searchQuery=ref('');const searchFocus=ref(false);
+        const showAddDialog=ref(false);const editingVenue=ref(null);const saving=ref(false);const loading=ref(true);
+        const form=ref({name:'',type:'',location:'',description:'',capacity:50,price_per_hour:50});
+        const stats=computed(()=>({total:venues.value.length,active:venues.value.filter(v=>v.status==='active').length,capacity:venues.value.reduce((s,v)=>s+(v.status==='active'?Number(v.capacity||0):0),0)}));
+        const filteredVenues=computed(()=>{if(!searchQuery.value)return venues.value;const q=searchQuery.value.toLowerCase();return venues.value.filter(v=>v.name.toLowerCase().includes(q)||v.location.toLowerCase().includes(q))});
+        async function fetchVenues(){loading.value=true;try{const d=await apiFetch('/api/venues/my');venues.value=d.venues||[]}catch(e){ElementPlus.ElMessage.error('获取场馆列表失败: '+e.message)}finally{loading.value=false}}
+        async function saveVenue(){if(!form.value.name||!form.value.type||!form.value.location){ElementPlus.ElMessage.warning('请填写场馆名称、类型和位置');return}saving.value=true;try{if(editingVenue.value){await apiFetch(`/api/venues/${editingVenue.value.id}`,{method:'PUT',body:JSON.stringify(form.value)});Object.assign(editingVenue.value,form.value);ElementPlus.ElMessage.success('场馆信息已更新')}else{const d=await apiFetch('/api/venues',{method:'POST',body:JSON.stringify(form.value)});venues.value.unshift(d.venue||{...form.value,id:Date.now(),status:'active'});ElementPlus.ElMessage.success('场馆上架成功')}showAddDialog.value=false;editingVenue.value=null;form.value={name:'',type:'',location:'',description:'',capacity:50,price_per_hour:50}}catch(e){ElementPlus.ElMessage.error('操作失败: '+e.message)}finally{saving.value=false}}
+        function editVenue(v){editingVenue.value=v;form.value={name:v.name,type:v.type,location:v.location,description:v.description||'',capacity:v.capacity,price_per_hour:v.price_per_hour};showAddDialog.value=true}
+        async function toggleStatus(v){const ns=v.status==='active'?'inactive':'active';try{await ElementPlus.ElMessageBox.confirm(`确定要${ns==='active'?'上架':'下架'}「${v.name}」吗？`,'提示',{confirmButtonText:'确定',cancelButtonText:'取消',type:'warning'});await apiFetch(`/api/venues/${v.id}`,{method:'PUT',body:JSON.stringify({status:ns})});v.status=ns;ElementPlus.ElMessage.success(ns==='active'?'已上架':'已下架')}catch(e){if(e!=='cancel'&&e!=='close')ElementPlus.ElMessage.error('操作失败: '+(e.message||''))}}
+        function logout(){localStorage.removeItem('token');localStorage.removeItem('user');window.location.href='login.html'}
+        onMounted(()=>{if(!localStorage.getItem('token')){window.location.href='login.html';return}fetchVenues()})
+        return{user,venues,searchQuery,searchFocus,filteredVenues,stats,showAddDialog,editingVenue,form,saving,loading,saveVenue,editVenue,toggleStatus,logout}
+    }}).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

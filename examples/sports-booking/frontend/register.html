@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 · SportFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#eaf4ff,#e8faf0,#f0f9ff,#edf4fe);background-size:400% 400%;animation:gradientBG 12s ease infinite;position:relative}
+        body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 30% 40%,rgba(0,87,179,0.03) 0%,transparent 50%),radial-gradient(circle at 70% 60%,rgba(0,168,107,0.03) 0%,transparent 50%);pointer-events:none;z-index:0}
+        @keyframes gradientBG{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(24px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+        @keyframes ripple{to{transform:scale(4);opacity:0}}
+        @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+        @keyframes stepPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,87,179,0.3)}50%{box-shadow:0 0 0 8px rgba(0,87,179,0)}}
+        @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+        .anim-up{animation:fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards;opacity:0}
+        .shake{animation:shake 0.4s ease}
+        .float{animation:float 4s ease-in-out infinite}
+        .step-enter{animation:slideIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards}
+        .glass-card{background:rgba(255,255,255,0.75);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.3);box-shadow:0 8px 32px rgba(0,87,179,0.08)}
+        .ripple-btn{position:relative;overflow:hidden;cursor:pointer}
+        .ripple-btn .ripple-effect{position:absolute;border-radius:50%;background:rgba(255,255,255,0.35);transform:scale(0);animation:ripple 0.6s linear;pointer-events:none}
+        .role-card{transition:all 0.35s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden}
+        .role-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 60%,rgba(255,255,255,0.4));opacity:0;transition:opacity 0.35s}
+        .role-card:hover::after{opacity:1}
+        .role-card.active{transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,87,179,0.12)}
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="fixed top-20 right-20 w-32 h-32 rounded-full opacity-[0.06] float pointer-events-none" style="background:radial-gradient(circle,#0057b3,transparent 70%);animation-duration:7s"></div>
+    <div class="fixed bottom-20 left-20 w-40 h-40 rounded-full opacity-[0.05] float pointer-events-none" style="background:radial-gradient(circle,#00a86b,transparent 70%);animation-duration:9s;animation-delay:-3s"></div>
+
+    <div class="w-full max-w-lg relative z-10 anim-up">
+        <div class="text-center mb-8">
+            <a href="index.html" class="inline-flex items-center gap-2 no-underline group">
+                <span class="material-symbols-outlined text-4xl float transition-transform duration-300 group-hover:scale-110" style="color:#0057b3">sports_soccer</span>
+                <span class="font-lexend text-2xl font-bold" style="color:#1a2332">Sport<span style="color:#0057b3">Flow</span></span>
+            </a>
+            <p class="text-sm mt-2" style="color:#5a6b7d">创建您的 SportFlow 账号</p>
+        </div>
+
+        <div class="glass-card rounded-2xl p-8 transition-all duration-300 hover:shadow-xl">
+            <!-- 步骤进度 -->
+            <div class="flex items-center gap-2 mb-8">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500"
+                        :class="step>=1?'text-white':'bg-gray-200 text-gray-400'"
+                        :style="step>=1?{background:'linear-gradient(135deg,#0057b3,#00a86b)',boxShadow:'0 0 0 4px rgba(0,87,179,0.12)'}:{}">1</div>
+                    <span class="text-xs font-medium transition-all duration-300" :class="step>=1?'':'text-gray-400'" :style="step>=1?{color:'#0057b3'}:{}">信息填写</span>
+                </div>
+                <div class="flex-1 h-0.5 rounded transition-all duration-500" :style="step>=2?{background:'linear-gradient(90deg,#0057b3,#00a86b)'}:{background:'#e5e7eb'}"></div>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500"
+                        :class="step>=2?'text-white':'bg-gray-200 text-gray-400'"
+                        :style="step>=2?{background:'linear-gradient(135deg,#0057b3,#00a86b)',boxShadow:'0 0 0 4px rgba(0,87,179,0.12)'}:{}">2</div>
+                    <span class="text-xs font-medium transition-all duration-300" :class="step>=2?'':'text-gray-400'" :style="step>=2?{color:'#0057b3'}:{}">角色选择</span>
+                </div>
+                <div class="flex-1 h-0.5 rounded transition-all duration-500" :style="step>=3?{background:'linear-gradient(90deg,#0057b3,#00a86b)'}:{background:'#e5e7eb'}"></div>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-500"
+                        :class="step>=3?'text-white':'bg-gray-200 text-gray-400'"
+                        :style="step>=3?{background:'linear-gradient(135deg,#0057b3,#00a86b)',boxShadow:'0 0 0 4px rgba(0,87,179,0.12)'}:{}">3</div>
+                    <span class="text-xs font-medium transition-all duration-300" :class="step>=3?'':'text-gray-400'" :style="step>=3?{color:'#0057b3'}:{}">完成</span>
+                </div>
+            </div>
+
+            <!-- Step 1 信息填写 -->
+            <div v-if="step===1" class="step-enter">
+                <form @submit.prevent="step=2">
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium mb-1.5" style="color:#1a2332">邮箱地址</label>
+                        <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><span class="material-symbols-outlined text-lg">email</span></span>
+                        <input type="email" v-model="email" required class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-sm outline-none transition-all duration-300 hover:border-gray-300 focus:border-[#0057b3] focus:shadow-[0_0_0_3px_rgba(0,87,179,0.12)]" placeholder="请输入邮箱地址"></div>
+                    </div>
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium mb-1.5" style="color:#1a2332">验证码</label>
+                        <div class="flex gap-3">
+                            <div class="relative flex-1"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><span class="material-symbols-outlined text-lg">pin</span></span>
+                            <input type="text" v-model="code" maxlength="6" class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-sm outline-none transition-all duration-300 hover:border-gray-300 focus:border-[#0057b3] focus:shadow-[0_0_0_3px_rgba(0,87,179,0.12)]" placeholder="验证码"></div>
+                            <button type="button" @click="sendCode" :disabled="codeSent"
+                                class="ripple-btn px-4 py-3 rounded-xl text-sm font-semibold whitespace-nowrap transition-all duration-300 relative"
+                                :class="codeSent?'bg-gray-200 text-gray-400 cursor-not-allowed':'text-white hover:shadow-lg'"
+                                :style="codeSent?{}:{background:'linear-gradient(135deg,#0057b3,#00a86b)'}">{{codeSent?`${countdown}s后重发`:'发送验证码'}}</button>
+                        </div>
+                    </div>
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium mb-1.5" style="color:#1a2332">密码</label>
+                        <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><span class="material-symbols-outlined text-lg">lock</span></span>
+                        <input :type="showPwd?'text':'password'" v-model="password" required minlength="6" class="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-200 bg-white text-sm outline-none transition-all duration-300 hover:border-gray-300 focus:border-[#0057b3] focus:shadow-[0_0_0_3px_rgba(0,87,179,0.12)]" placeholder="至少6位密码">
+                        <button type="button" @click="showPwd=!showPwd" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#0057b3] transition-colors"><span class="material-symbols-outlined text-lg">{{showPwd?'visibility_off':'visibility'}}</span></button></div>
+                    </div>
+                    <button type="submit" class="ripple-btn w-full py-3 rounded-xl font-semibold text-sm text-white transition-all duration-300 hover:shadow-xl hover:scale-[0.98] relative" style="background:linear-gradient(135deg,#0057b3,#0078d4)">下一步 <span class="material-symbols-outlined text-lg ml-1">arrow_forward</span></button>
+                </form>
+            </div>
+
+            <!-- Step 2 角色选择 -->
+            <div v-if="step===2" class="step-enter">
+                <p class="text-sm mb-6" style="color:#5a6b7d">选择您的角色，不同角色拥有不同的功能权限。</p>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="role-card p-5 rounded-xl border-2 text-center cursor-pointer transition-all duration-300"
+                        :class="role==='provider'?'active border-[#0057b3] bg-[#eaf4ff]':'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'"
+                        @click="role='provider'">
+                        <span class="material-symbols-outlined text-4xl mb-3" style="color:#0057b3">storefront</span>
+                        <h4 class="font-lexend font-bold mb-1">场馆提供方</h4>
+                        <p class="text-xs" style="color:#5a6b7d">上架和管理场馆</p>
+                        <div v-if="role==='provider'" class="mt-3"><span class="inline-flex w-6 h-6 rounded-full text-white text-xs items-center justify-center mx-auto anim-scaleIn" style="background:linear-gradient(135deg,#0057b3,#00a86b)"><span class="material-symbols-outlined text-sm">check</span></span></div>
+                    </div>
+                    <div class="role-card p-5 rounded-xl border-2 text-center cursor-pointer transition-all duration-300"
+                        :class="role==='customer'?'active border-[#00a86b] bg-[#e8faf0]':'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'"
+                        @click="role='customer'">
+                        <span class="material-symbols-outlined text-4xl mb-3" style="color:#00a86b">person</span>
+                        <h4 class="font-lexend font-bold mb-1">运动爱好者</h4>
+                        <p class="text-xs" style="color:#5a6b7d">预约场馆运动</p>
+                        <div v-if="role==='customer'" class="mt-3"><span class="inline-flex w-6 h-6 rounded-full text-white text-xs items-center justify-center mx-auto anim-scaleIn" style="background:linear-gradient(135deg,#0057b3,#00a86b)"><span class="material-symbols-outlined text-sm">check</span></span></div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button @click="step=1" class="ripple-btn flex-1 py-3 rounded-xl font-semibold text-sm border-2 border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-300 relative">上一步</button>
+                    <button @click="step=3" class="ripple-btn flex-1 py-3 rounded-xl font-semibold text-sm text-white transition-all duration-300 hover:shadow-xl hover:scale-[0.98] relative" style="background:linear-gradient(135deg,#0057b3,#00a86b)">确认注册</button>
+                </div>
+            </div>
+
+            <!-- Step 3 确认 -->
+            <div v-if="step===3" class="step-enter">
+                <div class="text-center mb-6"><span class="material-symbols-outlined text-5xl mb-3 float" style="color:#0057b3">how_to_reg</span><h3 class="font-lexend text-xl font-bold">确认注册信息</h3></div>
+                <div class="bg-gray-50/80 backdrop-blur rounded-xl p-4 mb-6 text-sm space-y-3 border border-gray-100">
+                    <div class="flex justify-between"><span class="text-gray-500">邮箱</span><span class="font-medium">{{email}}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500">角色</span><span class="font-medium" :style="{color:role==='provider'?'#0057b3':'#00a86b'}">{{role==='provider'?'场馆提供方':'运动爱好者'}}</span></div>
+                </div>
+                <div v-if="errorMsg" class="mb-4 p-3 rounded-xl flex items-center gap-2 text-sm shake" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#b91c1c"><span class="material-symbols-outlined text-lg">error</span>{{errorMsg}}</div>
+                <button @click="handleRegister" :disabled="loading" class="ripple-btn w-full py-3 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 text-white mb-3 relative" :class="loading?'bg-gray-300 cursor-not-allowed':'hover:shadow-xl hover:scale-[0.98]'" style="background:linear-gradient(135deg,#0057b3,#00a86b)">
+                    <span v-if="loading"><span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block mr-2"></span>注册中...</span>
+                    <span v-else>确认注册</span>
+                </button>
+                <button @click="step=2" class="w-full py-3 rounded-xl font-semibold text-sm border-2 border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-300">返回修改</button>
+            </div>
+
+            <!-- 完成 -->
+            <div v-if="registered" class="text-center py-4 step-enter">
+                <span class="material-symbols-outlined text-6xl mb-4 inline-block anim-scaleIn" style="color:#00a86b">check_circle</span>
+                <h3 class="font-lexend text-xl font-bold mb-2">注册成功！🎉</h3>
+                <p class="text-sm mb-6" style="color:#5a6b7d">欢迎加入 SportFlow，正在跳转...</p>
+                <div class="w-12 h-12 border-4 rounded-full animate-spin mx-auto" style="border-color:rgba(0,87,179,0.15);border-top-color:#0057b3"></div>
+            </div>
+        </div>
+        <div class="text-center mt-6"><a href="index.html" class="inline-flex items-center gap-1 text-sm transition-all duration-200 hover:gap-2" style="color:#5a6b7d"><span class="material-symbols-outlined text-base">arrow_back</span>返回首页</a></div>
+    </div>
+</div>
+<script>
+    const{createApp,ref}=Vue;
+    const API_BASE='http://localhost:8000';
+    createApp({setup(){
+        const step=ref(1);const email=ref('');const password=ref('');const code=ref('');const role=ref('customer');
+        const showPwd=ref(false);const codeSent=ref(false);const countdown=ref(60);const loading=ref(false);
+        const errorMsg=ref('');const registered=ref(false);let timer=null;
+        async function sendCode(){
+            if(!email.value){errorMsg.value='请先填写邮箱';return;}
+            errorMsg.value='';
+            try{await fetch(`${API_BASE}/api/auth/send-code`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.value})});}catch(e){}
+            codeSent.value=true;countdown.value=60;
+            timer=setInterval(()=>{countdown.value--;if(countdown.value<=0){clearInterval(timer);codeSent.value=false;}},1000);
+            ElementPlus.ElMessage({message:'验证码已发送（测试环境 123456）',type:'success',duration:2000,customClass:'toast-slide'});
+        }
+        async function handleRegister(){
+            errorMsg.value='';loading.value=true;
+            try{
+                const res=await fetch(`${API_BASE}/api/auth/register`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.value,password:password.value,code:code.value||'123456',role:role.value})});
+                const data=await res.json();
+                if(!res.ok){errorMsg.value=data.detail||'注册失败';return;}
+                localStorage.setItem('token',data.token);localStorage.setItem('user',JSON.stringify(data.user));
+                registered.value=true;
+                setTimeout(()=>{const r=data.user.role;if(r==='admin')window.location.href='admin.html';else if(r==='provider')window.location.href='provider.html';else window.location.href='customer.html';},1500);
+            }catch(e){errorMsg.value='网络连接失败，请检查后端服务是否已启动';}
+            finally{loading.value=false;}
+        }
+        return{step,email,password,code,role,showPwd,codeSent,countdown,loading,errorMsg,registered,sendCode,handleRegister};
+    }}).use(ElementPlus).mount('#app');
+</script>
+<style>
+    .anim-scaleIn{animation:scaleIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards}
+    @keyframes scaleIn{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+    @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+    .step-enter{animation:slideIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards}
+    .toast-slide{animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1)!important}
+    @keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的预约 · SportFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#f8fafb;color:#1a2332}
+        .font-lexend{font-family:'Lexend',sans-serif}
+        :root{--b1:#0057b3;--b2:#0078d4;--g1:#00a86b;--text2:#5a6b7d}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+        @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+        @keyframes ripple{to{transform:scale(4);opacity:0}}
+        @keyframes statusPulse{0%,100%{opacity:1}50%{opacity:0.6}}
+        @keyframes floatEmpty{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+        .anim-fadeUp{animation:fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards;opacity:0}
+        .d1{animation-delay:0.05s}.d2{animation-delay:0.1s}.d3{animation-delay:0.15s}.d4{animation-delay:0.2s}.d5{animation-delay:0.25s}
+        .skeleton{background:linear-gradient(90deg,#e5e7eb 25%,#f0f3ff 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:0.5rem}
+        .glass{background:rgba(255,255,255,0.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.2)}
+        .ripple-btn{position:relative;overflow:hidden;cursor:pointer}
+        .ripple-btn .ripple-effect{position:absolute;border-radius:50%;background:rgba(0,0,0,0.08);transform:scale(0);animation:ripple 0.6s linear;pointer-events:none}
+        .card-glow{transition:all 0.4s cubic-bezier(0.16,1,0.3,1)}
+        .card-glow:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,87,179,0.1)}
+
+        .header{display:flex;justify-content:space-between;align-items:center;padding:16px;position:sticky;top:0;z-index:40;background:rgba(255,255,255,0.8);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,0.04)}
+        @media(min-width:768px){.header{padding:16px 32px}}
+        .page-hero{padding:32px 0}
+        .page-hero h1{font:700 32px/1.2 'Lexend'}
+        .page-hero p{color:var(--text2);margin-top:4px}
+        .stat-bar{display:grid;gap:16px;grid-template-columns:repeat(3,1fr);margin-bottom:32px}
+        .stat-item{background:#fff;border:1px solid #e5e7eb;border-radius:1rem;padding:16px;text-align:center;transition:all 0.3s}
+        .stat-item:hover{box-shadow:0 4px 16px rgba(0,87,179,0.06)}
+        .stat-item .val{font:700 28px/1 'Lexend'}
+        .stat-item .lbl{font-size:12px;color:var(--text2);margin-top:4px}
+
+        .tabs{display:flex;gap:0;margin-bottom:24px;background:#fff;border-radius:1rem;padding:4px;border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+        .tab-btn{flex:1;padding:10px 20px;border-radius:0.75rem;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);background:transparent;color:var(--text2)}
+        .tab-btn.active{background:linear-gradient(135deg,var(--b1),var(--b2));color:#fff;box-shadow:0 4px 12px rgba(0,87,179,0.2)}
+        .tab-btn:not(.active):hover{background:#eaf4ff}
+
+        .booking-card{background:#fff;border-radius:1.5rem;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.04);margin-bottom:16px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;transition:all 0.4s cubic-bezier(0.16,1,0.3,1)}
+        .booking-card:hover{box-shadow:0 12px 32px rgba(0,87,179,0.1);border-color:rgba(0,87,179,0.1)}
+        .sport-icon{width:56px;height:56px;border-radius:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.3s}
+        .booking-card:hover .sport-icon{transform:scale(1.1) rotate(-5deg)}
+        .status-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;transition:all 0.3s}
+        .status-booked{background:#eaf4ff;color:var(--b1)}
+        .status-cancelled{background:#fef2f2;color:#b91c1c}
+        .btn-cancel{background:#fff;color:#b91c1c;border:1px solid #fecaca;padding:8px 20px;border-radius:1rem;font-weight:600;font-size:13px;cursor:pointer;transition:all 0.3s}
+        .btn-cancel:hover{background:#fef2f2;border-color:#fca5a5;transform:scale(0.97)}
+        .btn-cancel:disabled{background:#e5e7eb;color:#9ca3af;border-color:#e5e7eb;cursor:not-allowed;transform:none}
+        .bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:rgba(255,255,255,0.9);backdrop-filter:blur(12px);box-shadow:0 -4px 20px rgba(0,0,0,0.06);display:flex;justify-content:space-around;padding:10px 16px;z-index:50}
+        @media(min-width:768px){.bottom-nav{display:none}}
+        .nav-mob{display:flex;flex-direction:column;align-items:center;text-decoration:none;color:var(--text2);cursor:pointer;transition:all 0.3s cubic-bezier(0.16,1,0.3,1)}
+        .nav-mob.active{background:linear-gradient(135deg,var(--b1),var(--b2));color:#fff;padding:4px 16px;border-radius:999px;transform:scale(1.05)}
+    </style>
+</head>
+<body>
+<div id="app">
+    <header class="header anim-fadeUp">
+        <div class="flex items-center gap-2"><span class="material-symbols-outlined text-2xl" style="color:var(--b1)">sports_soccer</span><span class="font-lexend text-xl font-bold">Sport<span style="color:var(--b1)">Flow</span></span></div>
+        <div class="hidden md:flex items-center gap-8">
+            <a href="customer.html" class="text-sm font-medium hover:text-[var(--b1)] transition-colors" style="color:var(--text2)">浏览场馆</a>
+            <a href="my-bookings.html" class="text-sm font-medium pb-1 relative" style="color:var(--b1)">我的预约<span class="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style="background:linear-gradient(90deg,var(--b1),var(--g1))"></span></a>
+            <a href="#" class="text-sm font-medium hover:text-[var(--b1)] transition-colors" style="color:var(--text2)" @click.prevent="logout">退出</a>
+        </div>
+        <span class="text-sm hidden sm:block" style="color:var(--text2)">你好，{{user.nickname}}</span>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-8 pb-28">
+        <div class="page-hero anim-fadeUp d1"><h1>我的预约</h1><p>查看您的预约记录与状态</p></div>
+
+        <div class="stat-bar anim-fadeUp d2">
+            <div class="stat-item card-glow"><div class="val" style="color:var(--b1)">{{stats.active}}</div><div class="lbl">已预约</div></div>
+            <div class="stat-item card-glow"><div class="val" style="color:#b91c1c">{{stats.cancelled}}</div><div class="lbl">已取消</div></div>
+            <div class="stat-item card-glow"><div class="val">{{stats.total}}</div><div class="lbl">总计</div></div>
+        </div>
+
+        <!-- Tabs with slider animation -->
+        <div class="tabs anim-fadeUp d3">
+            <button class="tab-btn" :class="activeTab==='all'?'active':''" @click="activeTab='all'">全部</button>
+            <button class="tab-btn" :class="activeTab==='booked'?'active':''" @click="activeTab='booked'">已预约</button>
+            <button class="tab-btn" :class="activeTab==='cancelled'?'active':''" @click="activeTab='cancelled'">已取消</button>
+        </div>
+
+        <!-- Loading skeleton -->
+        <div v-if="loading">
+            <div v-for="i in 3" :key="i" class="booking-card"><div class="skeleton" style="width:56px;height:56px;border-radius:1rem;flex-shrink:0"></div><div style="flex:1"><div class="skeleton" style="height:18px;width:180px;margin-bottom:8px"></div><div class="skeleton" style="height:12px;width:120px"></div></div></div>
+        </div>
+        <div v-else>
+            <div v-for="(item,i) in filteredBookings" :key="item.id" class="booking-card anim-fadeUp" :style="{animationDelay:`${i*0.08}s`}">
+                <div class="sport-icon" :style="{background:item.bg||'#eaf4ff'}"><span class="material-symbols-outlined" :style="{color:item.iconColor||'var(--b1)'}">{{item.icon||'sports_soccer'}}</span></div>
+                <div style="flex:1;min-width:160px">
+                    <div class="font-lexend font-semibold">{{item.venue_name}}</div>
+                    <div class="text-xs" style="color:var(--text2);margin-top:2px">
+                        <span class="material-symbols-outlined text-xs align-text-bottom">calendar_today</span> {{item.date}}
+                        <span class="mx-1">·</span>
+                        <span class="material-symbols-outlined text-xs align-text-bottom">schedule</span> {{item.time_slot}}
+                    </div>
+                    <div v-if="item.cancelled_at" class="text-xs mt-1" style="color:#b91c1c">取消于 {{item.cancelled_at}}</div>
+                </div>
+                <div>
+                    <span class="status-badge" :class="item.status==='booked'?'status-booked':'status-cancelled'">
+                        <span class="material-symbols-outlined text-xs">{{item.status==='booked'?'check_circle':'cancel'}}</span>
+                        {{item.status==='booked'?'已预约':'已取消'}}
+                    </span>
+                </div>
+                <div>
+                    <button v-if="item.status==='booked'" class="btn-cancel ripple-btn" @click="cancelBooking(item)" :disabled="cancellingId===item.id">
+                        <span v-if="cancellingId===item.id"><span class="inline-block w-3 h-3 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin"></span></span>
+                        <span v-else>取消预约</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty state with fun illustration -->
+            <div v-if="filteredBookings.length===0" class="text-center py-20 anim-fadeUp d4">
+                <div class="relative inline-block mb-6">
+                    <span class="material-symbols-outlined inline-block" style="font-size:80px;color:#d1d5db;animation:floatEmpty 3s ease-in-out infinite">event_busy</span>
+                    <span class="material-symbols-outlined absolute -top-2 -right-2 text-lg" style="color:#f59e0b;animation:floatEmpty 3.5s ease-in-out infinite">sentiment_dissatisfied</span>
+                </div>
+                <p class="text-base font-medium" style="color:var(--text2)">还没有预约记录</p>
+                <p class="text-xs mt-1" style="color:#9ca3af">去发现场馆，开启你的运动之旅吧</p>
+                <a href="customer.html" class="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold px-5 py-2.5 rounded-xl text-white transition-all duration-300 hover:shadow-xl hover:scale-[0.97]" style="background:linear-gradient(135deg,var(--b1),var(--g1))">
+                    <span class="material-symbols-outlined text-lg">stadium</span> 浏览场馆
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="customer.html" class="nav-mob"><span class="material-symbols-outlined">stadium</span><span>浏览</span></a>
+        <a href="my-bookings.html" class="nav-mob active"><span class="material-symbols-outlined">event</span><span>预约</span></a>
+        <a href="#" class="nav-mob" @click.prevent="logout"><span class="material-symbols-outlined">logout</span><span>退出</span></a>
+    </nav>
+</div>
+
+<script>
+    const{createApp,ref,computed,onMounted}=Vue;
+    const API_BASE='http://localhost:8000';
+    function authHeaders(){const t=localStorage.getItem('token');return{'Content-Type':'application/json',...(t?{'Authorization':`Bearer ${t}`}:{})}}
+    async function apiFetch(url,opts={}){const res=await fetch(`${API_BASE}${url}`,{...opts,headers:{...authHeaders(),...(opts.headers||{})}});const d=await res.json();if(!res.ok)throw new Error(d.detail||`请求失败 (${res.status})`);return d}
+    const TYPE_STYLES={
+        '篮球':{icon:'sports_basketball',bg:'#fff3e0',color:'#e65100'},
+        '足球':{icon:'sports_soccer',bg:'#e8faf0',color:'#2e7d32'},
+        '羽毛球':{icon:'sports_tennis',bg:'#e3f2fd',color:'#1565c0'},
+        '乒乓球':{icon:'sports_kabaddi',bg:'#fff7ed',color:'#c2410c'},
+        '游泳':{icon:'pool',bg:'#e0f7fa',color:'#00838f'},
+    };
+    createApp({setup(){
+        const user=ref(JSON.parse(localStorage.getItem('user')||'{}'));const bookings=ref([]);const activeTab=ref('all');const cancellingId=ref(null);const loading=ref(true)
+        const filteredBookings=computed(()=>{let list=bookings.value.map(b=>{const s=TYPE_STYLES[b.venue_type]||{};return{...b,icon:s.icon||'sports_soccer',bg:s.bg||'#eaf4ff',iconColor:s.color||'#0057b3'}});if(activeTab.value==='all')return list;return list.filter(b=>b.status===activeTab.value)})
+        const stats=computed(()=>({active:bookings.value.filter(b=>b.status==='booked').length,cancelled:bookings.value.filter(b=>b.status==='cancelled').length,total:bookings.value.length}))
+        async function fetchBookings(){loading.value=true;try{const d=await apiFetch('/api/bookings/my');bookings.value=d.bookings||[]}catch(e){ElementPlus.ElMessage.error('获取预约记录失败: '+e.message)}finally{loading.value=false}}
+        async function cancelBooking(item){try{await ElementPlus.ElMessageBox.confirm(`确定取消「${item.venue_name}」${item.date} ${item.time_slot}的预约？`,'取消预约',{confirmButtonText:'确定取消',cancelButtonText:'暂不',type:'warning'});cancellingId.value=item.id;await apiFetch(`/api/bookings/${item.id}/cancel`,{method:'PUT'});item.status='cancelled';item.cancelled_at=new Date().toISOString().slice(0,10);ElementPlus.ElMessage.success('预约已取消')}catch(e){if(e!=='cancel'&&e!=='close')ElementPlus.ElMessage.error('取消失败: '+(e.message||''))}finally{cancellingId.value=null}}
+        function logout(){localStorage.removeItem('token');localStorage.removeItem('user');window.location.href='login.html'}
+        onMounted(()=>{if(!localStorage.getItem('token')){window.location.href='login.html';return}fetchBookings()})
+        return{user,bookings,activeTab,filteredBookings,stats,cancellingId,loading,cancelBooking,logout}
+    }}).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

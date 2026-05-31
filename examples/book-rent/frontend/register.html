@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 · BookFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <style>
+        :root {
+            --p:#0049db; --pl:#dce1ff; --pc:#2962ff; --s:#f9f9ff; --sc:#fff;
+            --t:#111c2d; --tv:#434656;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family:'Inter',sans-serif; background:linear-gradient(135deg,#f9f9ff 0%,#dce1ff 100%);
+            min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+        }
+        .font-lexend { font-family:'Lexend',sans-serif; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .animate-up { animation:fadeUp 0.5s ease forwards; }
+        @keyframes shake { 0%,100% { transform:translateX(0); } 20% { transform:translateX(-8px); } 40% { transform:translateX(8px); } 60% { transform:translateX(-4px); } 80% { transform:translateX(4px); } }
+        .shake { animation:shake 0.4s ease; }
+        .role-card { cursor:pointer; transition:all 0.2s ease; }
+        .role-card:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,73,219,0.1); }
+        .role-card.active { border-color:#0049db; background:#f0f3ff; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="w-full max-w-lg animate-up">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <a href="index.html" class="inline-flex items-center gap-2 no-underline">
+                <span class="material-symbols-outlined text-4xl text-[#0049db]">auto_stories</span>
+                <span class="font-lexend text-2xl font-bold" style="color:var(--t)">Book<span style="color:var(--p)">Flow</span></span>
+            </a>
+            <p class="text-sm text-[#434656] mt-2">创建您的 BookFlow 账号</p>
+        </div>
+
+        <!-- 注册卡片 -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+            <!-- 步骤进度 -->
+            <div class="flex items-center gap-2 mb-8">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                        :class="step>=1?'bg-[#0049db] text-white':'bg-gray-200 text-gray-500'">1</div>
+                    <span class="text-xs" :class="step>=1?'font-semibold text-[#0049db]':'text-gray-400'">邮箱验证</span>
+                </div>
+                <div class="flex-1 h-px" :class="step>=2?'bg-[#0049db]':'bg-gray-200'"></div>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                        :class="step>=2?'bg-[#0049db] text-white':'bg-gray-200 text-gray-500'">2</div>
+                    <span class="text-xs" :class="step>=2?'font-semibold text-[#0049db]':'text-gray-400'">角色选择</span>
+                </div>
+                <div class="flex-1 h-px" :class="step>=3?'bg-[#0049db]':'bg-gray-200'"></div>
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                        :class="step>=3?'bg-[#0049db] text-white':'bg-gray-200 text-gray-500'">3</div>
+                    <span class="text-xs" :class="step>=3?'font-semibold text-[#0049db]':'text-gray-400'">完成</span>
+                </div>
+            </div>
+
+            <!-- 步骤1: 邮箱 + 验证码 + 密码 -->
+            <div v-if="step===1">
+                <form @submit.prevent="step=2">
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">邮箱地址</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <span class="material-symbols-outlined text-lg">email</span>
+                            </span>
+                            <input type="email" v-model="email" required
+                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#0049db] focus:ring-2 focus:ring-[#0049db]/10 outline-none transition-all text-sm"
+                                placeholder="请输入邮箱地址">
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">验证码</label>
+                        <div class="flex gap-3">
+                            <div class="relative flex-1">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                    <span class="material-symbols-outlined text-lg">pin</span>
+                                </span>
+                                <input type="text" v-model="code" required maxlength="6"
+                                    class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#0049db] focus:ring-2 focus:ring-[#0049db]/10 outline-none transition-all text-sm"
+                                    placeholder="输入验证码">
+                            </div>
+                            <button type="button" @click="sendCode" :disabled="codeSent"
+                                class="px-4 py-3 rounded-xl text-sm font-semibold whitespace-nowrap transition-all"
+                                :class="codeSent?'bg-gray-200 text-gray-400':'bg-[#dce1ff] text-[#0049db] hover:bg-[#0049db] hover:text-white'">
+                                {{codeSent ? `${countdown}s后重发` : '发送验证码'}}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">密码</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                <span class="material-symbols-outlined text-lg">lock</span>
+                            </span>
+                            <input :type="showPwd?'text':'password'" v-model="password" required minlength="6"
+                                class="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-200 focus:border-[#0049db] focus:ring-2 focus:ring-[#0049db]/10 outline-none transition-all text-sm"
+                                placeholder="请设置密码（至少6位）">
+                            <button type="button" @click="showPwd=!showPwd"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#0049db]">
+                                <span class="material-symbols-outlined text-lg">{{showPwd?'visibility_off':'visibility'}}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-3 rounded-xl font-semibold text-sm bg-[#0049db] text-white hover:shadow-lg hover:shadow-[#0049db]/20 hover:scale-[0.98] transition-all">
+                        下一步
+                    </button>
+                </form>
+            </div>
+
+            <!-- 步骤2: 角色选择 -->
+            <div v-if="step===2">
+                <p class="text-sm text-[#434656] mb-6">请选择您的角色，不同角色拥有不同的功能权限。</p>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="role-card p-5 rounded-xl border-2 border-gray-200 text-center"
+                        :class="role==='provider'?'active border-[#0049db] bg-[#f0f3ff]':'hover:border-gray-300'"
+                        @click="role='provider'">
+                        <span class="material-symbols-outlined text-4xl text-[#0049db] mb-3">storefront</span>
+                        <h4 class="font-lexend font-bold mb-1">B端 · 图书提供方</h4>
+                        <p class="text-xs text-[#434656]">上架和管理您的图书</p>
+                        <div v-if="role==='provider'" class="mt-3">
+                            <span class="inline-block w-6 h-6 rounded-full bg-[#0049db] text-white text-xs flex items-center justify-center mx-auto">
+                                <span class="material-symbols-outlined text-sm">check</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="role-card p-5 rounded-xl border-2 border-gray-200 text-center"
+                        :class="role==='customer'?'active border-[#0049db] bg-[#f0f3ff]':'hover:border-gray-300'"
+                        @click="role='customer'">
+                        <span class="material-symbols-outlined text-4xl text-[#0049db] mb-3">person</span>
+                        <h4 class="font-lexend font-bold mb-1">C端 · 借阅用户</h4>
+                        <p class="text-xs text-[#434656]">借阅图书、查看记录</p>
+                        <div v-if="role==='customer'" class="mt-3">
+                            <span class="inline-block w-6 h-6 rounded-full bg-[#0049db] text-white text-xs flex items-center justify-center mx-auto">
+                                <span class="material-symbols-outlined text-sm">check</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button @click="step=1"
+                        class="flex-1 py-3 rounded-xl font-semibold text-sm border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all">
+                        上一步
+                    </button>
+                    <button @click="step=3"
+                        class="flex-1 py-3 rounded-xl font-semibold text-sm bg-[#0049db] text-white hover:shadow-lg hover:shadow-[#0049db]/20 hover:scale-[0.98] transition-all">
+                        下一步
+                    </button>
+                </div>
+            </div>
+
+            <!-- 步骤3: 确认注册 -->
+            <div v-if="step===3">
+                <div class="text-center mb-6">
+                    <span class="material-symbols-outlined text-5xl text-[#0049db] mb-3">how_to_reg</span>
+                    <h3 class="font-lexend text-xl font-bold">确认注册信息</h3>
+                </div>
+                <div class="bg-gray-50 rounded-xl p-4 mb-6 text-sm space-y-3">
+                    <div class="flex justify-between"><span class="text-gray-500">邮箱</span><span class="font-medium">{{email}}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500">角色</span><span class="font-medium">{{role==='provider'?'B端 · 图书提供方':'C端 · 借阅用户'}}</span></div>
+                </div>
+
+                <div v-if="errorMsg" class="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2 text-sm text-red-600 shake">
+                    <span class="material-symbols-outlined text-lg">error</span>
+                    {{errorMsg}}
+                </div>
+
+                <button @click="handleRegister" :disabled="loading"
+                    class="w-full py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 mb-3"
+                    :class="loading?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-[#0049db] text-white hover:shadow-lg hover:shadow-[#0049db]/20 hover:scale-[0.98]'">
+                    <span v-if="loading" class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    <span v-else>确认注册</span>
+                </button>
+                <button @click="step=2"
+                    class="w-full py-3 rounded-xl font-semibold text-sm border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all">
+                    返回修改
+                </button>
+            </div>
+
+            <!-- 完成 -->
+            <div v-if="registered" class="text-center py-4">
+                <span class="material-symbols-outlined text-6xl text-green-500 mb-4">check_circle</span>
+                <h3 class="font-lexend text-xl font-bold mb-2">注册成功！</h3>
+                <p class="text-sm text-[#434656] mb-6">欢迎加入 BookFlow，正在跳转...</p>
+                <div class="w-12 h-12 border-4 border-[#0049db]/20 border-t-[#0049db] rounded-full animate-spin mx-auto"></div>
+            </div>
+        </div>
+
+        <div class="text-center mt-6">
+            <a href="index.html" class="inline-flex items-center gap-1 text-sm text-[#434656] hover:text-[#0049db]">
+                <span class="material-symbols-outlined text-base">arrow_back</span>
+                返回首页
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { createApp, ref } = Vue;
+    createApp({
+        setup() {
+            const step = ref(1);
+            const email = ref('');
+            const password = ref('');
+            const code = ref('');
+            const role = ref('customer');
+            const showPwd = ref(false);
+            const codeSent = ref(false);
+            const countdown = ref(60);
+            const loading = ref(false);
+            const errorMsg = ref('');
+            const registered = ref(false);
+            let timer = null;
+
+            async function sendCode() {
+                if (!email.value) {
+                    errorMsg.value = '请先填写邮箱地址';
+                    return;
+                }
+                errorMsg.value = '';
+                try {
+                    await fetch('http://localhost:8000/api/auth/send-code', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email.value })
+                    });
+                } catch (e) { /* ignore, backend may not be ready */ }
+                codeSent.value = true;
+                countdown.value = 60;
+                timer = setInterval(() => {
+                    countdown.value--;
+                    if (countdown.value <= 0) {
+                        clearInterval(timer);
+                        codeSent.value = false;
+                    }
+                }, 1000);
+                ElementPlus.ElMessage.success('验证码已发送（测试环境为 123456）');
+            }
+
+            async function handleRegister() {
+                errorMsg.value = '';
+                loading.value = true;
+                try {
+                    const res = await fetch('http://localhost:8000/api/auth/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email: email.value,
+                            password: password.value,
+                            code: code.value || '123456',
+                            role: role.value
+                        })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        errorMsg.value = data.detail || '注册失败，请重试';
+                        return;
+                    }
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    registered.value = true;
+                    setTimeout(() => {
+                        const r = data.user.role;
+                        if (r === 'admin') window.location.href = 'admin.html';
+                        else if (r === 'provider') window.location.href = 'provider.html';
+                        else window.location.href = 'customer.html';
+                    }, 1500);
+                } catch (e) {
+                    errorMsg.value = '网络连接失败，请检查后端服务是否已启动: ' + (e.message || '');
+                } finally {
+                    loading.value = false;
+                }
+            }
+
+            return { step, email, password, code, role, showPwd, codeSent, countdown, loading, errorMsg, registered, sendCode, handleRegister };
+        }
+    }).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

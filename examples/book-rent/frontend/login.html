@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 · BookFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <style>
+        :root {
+            --p:#0049db; --pl:#dce1ff; --pc:#2962ff; --s:#f9f9ff; --sc:#fff;
+            --t:#111c2d; --tv:#434656;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family:'Inter',sans-serif; background:linear-gradient(135deg,#f9f9ff 0%,#dce1ff 100%);
+            min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+        }
+        .font-lexend { font-family:'Lexend',sans-serif; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .animate-up { animation:fadeUp 0.5s ease forwards; }
+        @keyframes shake { 0%,100% { transform:translateX(0); } 20% { transform:translateX(-8px); } 40% { transform:translateX(8px); } 60% { transform:translateX(-4px); } 80% { transform:translateX(4px); } }
+        .shake { animation:shake 0.4s ease; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="w-full max-w-md animate-up">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <a href="index.html" class="inline-flex items-center gap-2 no-underline">
+                <span class="material-symbols-outlined text-4xl text-[#0049db]">auto_stories</span>
+                <span class="font-lexend text-2xl font-bold" style="color:var(--t)">Book<span style="color:var(--p)">Flow</span></span>
+            </a>
+            <p class="text-sm text-[#434656] mt-2">欢迎回来，请登录您的账号</p>
+        </div>
+
+        <!-- 登录卡片 -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+            <form @submit.prevent="handleLogin">
+                <!-- 邮箱 -->
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">邮箱地址</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <span class="material-symbols-outlined text-lg">email</span>
+                        </span>
+                        <input type="email" v-model="email" required
+                            class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-[#0049db] focus:ring-2 focus:ring-[#0049db]/10 outline-none transition-all text-sm"
+                            :class="{'border-red-400 bg-red-50': error.email}"
+                            placeholder="请输入邮箱地址"
+                            @focus="error.email=false">
+                    </div>
+                </div>
+
+                <!-- 密码 -->
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">密码</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <span class="material-symbols-outlined text-lg">lock</span>
+                        </span>
+                        <input :type="showPwd?'text':'password'" v-model="password" required
+                            class="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-200 focus:border-[#0049db] focus:ring-2 focus:ring-[#0049db]/10 outline-none transition-all text-sm"
+                            :class="{'border-red-400 bg-red-50': error.password}"
+                            placeholder="请输入密码"
+                            @focus="error.password=false">
+                        <button type="button" @click="showPwd=!showPwd"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#0049db]">
+                            <span class="material-symbols-outlined text-lg">{{showPwd?'visibility_off':'visibility'}}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 错误提示 -->
+                <div v-if="errorMsg" class="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 flex items-center gap-2 text-sm text-red-600 shake">
+                    <span class="material-symbols-outlined text-lg">error</span>
+                    {{errorMsg}}
+                </div>
+
+                <!-- 提交按钮 -->
+                <button type="submit" :disabled="loading"
+                    class="w-full py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2"
+                    :class="loading?'bg-gray-300 text-gray-500 cursor-not-allowed':'bg-[#0049db] text-white hover:shadow-lg hover:shadow-[#0049db]/20 hover:scale-[0.98]'">
+                    <span v-if="loading" class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    <span v-else>登录</span>
+                </button>
+            </form>
+
+            <!-- 分隔 -->
+            <div class="flex items-center gap-4 my-6">
+                <div class="flex-1 h-px bg-gray-200"></div>
+                <span class="text-xs text-gray-400">或</span>
+                <div class="flex-1 h-px bg-gray-200"></div>
+            </div>
+
+            <!-- 注册入口 -->
+            <p class="text-center text-sm text-[#434656]">
+                还没有账号？
+                <a href="register.html" class="text-[#0049db] font-semibold hover:underline">立即注册</a>
+            </p>
+        </div>
+
+        <!-- 回到首页 -->
+        <div class="text-center mt-6">
+            <a href="index.html" class="inline-flex items-center gap-1 text-sm text-[#434656] hover:text-[#0049db]">
+                <span class="material-symbols-outlined text-base">arrow_back</span>
+                返回首页
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { createApp, ref } = Vue;
+    createApp({
+        setup() {
+            const email = ref('');
+            const password = ref('');
+            const showPwd = ref(false);
+            const loading = ref(false);
+            const errorMsg = ref('');
+            const error = ref({ email: false, password: false });
+
+            async function handleLogin() {
+                errorMsg.value = '';
+                if (!email.value || !password.value) {
+                    errorMsg.value = '请填写邮箱和密码';
+                    return;
+                }
+                loading.value = true;
+                try {
+                    const res = await fetch('http://localhost:8000/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email.value, password: password.value })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                        errorMsg.value = data.detail || '登录失败，请检查邮箱和密码';
+                        error.value.email = true;
+                        error.value.password = true;
+                        return;
+                    }
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    // 根据角色跳转
+                    const role = data.user.role;
+                    if (role === 'admin') window.location.href = 'admin.html';
+                    else if (role === 'provider') window.location.href = 'provider.html';
+                    else window.location.href = 'customer.html';
+                } catch (e) {
+                    errorMsg.value = '网络连接失败，请检查后端服务是否启动';
+                } finally {
+                    loading.value = false;
+                }
+            }
+
+            return { email, password, showPwd, loading, errorMsg, error, handleLogin };
+        }
+    }).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

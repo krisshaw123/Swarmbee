@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C端浏览 · BookFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://unpkg.com/animate.css">
+    <style>
+        :root {
+            --p:#0049db; --pl:#dce1ff; --pc:#2962ff; --s:#f9f9ff; --sc:#fff;
+            --t:#111c2d; --tv:#434656; --rad:1rem;
+            --shadow:0 4px 12px rgba(0,0,0,0.05);
+            --surface-high:#dee8ff;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#f9f9ff; color:var(--t); }
+        .font-lexend { font-family:'Lexend',sans-serif; }
+
+        .header { display:flex; justify-content:space-between; align-items:center; padding:16px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.03); position:sticky; top:0; z-index:40; }
+        @media(min-width:768px){ .header{padding:16px 32px;} }
+        .logo { font:700 24px/1 'Lexend',sans-serif; color:var(--t); letter-spacing:-0.01em; }
+        .logo span { color:var(--p); }
+
+        .hero-bar { background:linear-gradient(135deg,#0049db,#2962ff); padding:48px 0; margin-bottom:32px; }
+        @media(min-width:768px){ .hero-bar{padding:64px 0;} }
+        .hero-bar h1 { font:700 36px/1.2 'Lexend',sans-serif; color:#fff; }
+        @media(max-width:640px){ .hero-bar h1{font-size:28px;} }
+        .hero-bar p { color:rgba(255,255,255,0.7); margin-top:8px; }
+        .search-box { display:flex; gap:12px; margin-top:24px; max-width:480px; }
+        .search-box input { flex:1; padding:12px 16px; border-radius:1rem; border:none; outline:none; font-size:14px; }
+        .search-box button { background:rgba(255,255,255,0.2); color:#fff; border:none; width:48px; border-radius:1rem; cursor:pointer; }
+        .search-box button:hover { background:rgba(255,255,255,0.3); }
+
+        .book-grid { display:grid; gap:24px; grid-template-columns:1fr; }
+        @media(min-width:640px){ .book-grid{grid-template-columns:repeat(2,1fr);} }
+        @media(min-width:1024px){ .book-grid{grid-template-columns:repeat(3,1fr);} }
+
+        .book-card {
+            background:#fff; border-radius:1.5rem; overflow:hidden;
+            box-shadow:var(--shadow); transition:all 0.25s; border:1px solid rgba(0,0,0,0.04);
+        }
+        .book-card:hover { transform:translateY(-4px); box-shadow:0 8px 20px rgba(0,73,219,0.12); }
+
+        .book-cover {
+            position:relative; height:200px; overflow:hidden;
+            background:linear-gradient(135deg,#dce1ff,#f0f3ff);
+            display:flex; align-items:center; justify-content:center;
+        }
+        .book-cover .cover-icon { font-size:64px; color:var(--p); opacity:0.6; }
+        .book-cover .stock-badge {
+            position:absolute; top:12px; left:12px; padding:4px 12px; border-radius:999px;
+            font-size:11px; font-weight:700;
+        }
+        .book-card:hover .book-cover .cover-icon { transform:scale(1.1) rotate(-5deg); transition:0.4s; }
+
+        .book-info { padding:20px; }
+        .book-title { font:600 18px/1.3 'Lexend',sans-serif; }
+        .book-author { font-size:13px; color:var(--tv); margin:4px 0 8px; }
+        .book-desc { font-size:13px; color:var(--tv); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:12px; }
+        .book-footer { display:flex; justify-content:space-between; align-items:center; }
+        .stock-text { font-size:12px; }
+        .btn-borrow {
+            background:var(--p); color:#fff; border:none; padding:8px 20px; border-radius:var(--rad);
+            font-weight:600; font-size:13px; cursor:pointer; transition:all 0.2s;
+        }
+        .btn-borrow:hover { box-shadow:0 4px 12px rgba(0,73,219,0.3); transform:scale(0.97); }
+        .btn-borrow:disabled { background:#c3c5d8; cursor:not-allowed; transform:none; box-shadow:none; }
+
+        .bottom-nav { position:fixed; bottom:0; left:0; width:100%; background:#fff; box-shadow:0 -4px 12px rgba(0,0,0,0.05); display:flex; justify-content:space-around; padding:10px 16px; z-index:50; }
+        @media(min-width:768px){ .bottom-nav{display:none;} }
+        .nav-mob { display:flex; flex-direction:column; align-items:center; text-decoration:none; color:var(--tv); cursor:pointer; }
+        .nav-mob.active { background:var(--pc); color:#fff; padding:4px 16px; border-radius:999px; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <!-- 头部 -->
+    <header class="header">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-2xl text-[#0049db]">auto_stories</span>
+            <span class="logo">Book<span>Flow</span></span>
+        </div>
+        <div class="hidden md:flex items-center gap-8">
+            <a href="customer.html" class="text-sm font-medium text-[#0049db] border-b-2 border-[#0049db] pb-1">浏览图书</a>
+            <a href="my-borrows.html" class="text-sm font-medium text-[#434656] hover:text-[#0049db]">我的借阅</a>
+            <a href="#" class="text-sm font-medium text-[#434656] hover:text-[#0049db]" @click.prevent="logout">退出</a>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="text-sm text-[#434656]">你好，{{user.nickname}}</span>
+        </div>
+    </header>
+
+    <!-- Hero 搜索栏 -->
+    <div class="hero-bar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8">
+            <h1>发现你喜欢的书</h1>
+            <p>浏览所有可借图书，一键借阅</p>
+            <div class="search-box">
+                <input v-model="searchQuery" type="text" placeholder="搜索书名或作者...">
+                <button><span class="material-symbols-outlined">search</span></button>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-8 pb-24">
+        <!-- 分类筛选 -->
+        <div class="flex flex-wrap gap-2 mb-8">
+            <button v-for="cat in categories" :key="cat.value"
+                @click="activeCategory=cat.value"
+                class="px-4 py-2 rounded-full text-sm font-medium transition-all"
+                :class="activeCategory===cat.value?'bg-[#0049db] text-white':'bg-white text-[#434656] border border-gray-200 hover:border-[#0049db]'">
+                {{cat.label}}
+            </button>
+        </div>
+
+        <!-- 书籍网格 -->
+        <div class="book-grid animate__animated animate__fadeIn">
+            <div v-for="book in filteredBooks" :key="book.id" class="book-card">
+                <div class="book-cover">
+                    <span class="material-symbols-outlined cover-icon">auto_stories</span>
+                    <span class="stock-badge"
+                        :class="book.stock>0?'bg-green-500 text-white':'bg-gray-400 text-white'">
+                        {{book.stock>0 ? `库存 ${book.stock}` : '已借完'}}
+                    </span>
+                </div>
+                <div class="book-info">
+                    <div class="book-title">{{book.title}}</div>
+                    <div class="book-author">{{book.author}}</div>
+                    <div class="book-desc">{{book.description}}</div>
+                    <div class="book-footer">
+                        <span class="stock-text" :class="book.stock>0?'text-green-600':'text-red-500'">
+                            {{book.stock>0 ? `可借 ${book.stock} 本` : '暂不可借'}}
+                        </span>
+                        <button class="btn-borrow"
+                            :disabled="book.stock<=0 || borrowingId===book.id"
+                            @click="borrowBook(book)">
+                            <span v-if="borrowingId===book.id" class="inline-block w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                            <span v-else>{{book.stock>0?'立即借书':'不可借'}}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 空状态 -->
+        <div v-if="filteredBooks.length===0" class="text-center py-20">
+            <span class="material-symbols-outlined text-6xl text-gray-300 mb-4">search_off</span>
+            <p class="text-[#434656]">没有找到匹配的书籍</p>
+        </div>
+    </main>
+
+    <!-- 底部导航 -->
+    <nav class="bottom-nav">
+        <a href="customer.html" class="nav-mob active"><span class="material-symbols-outlined">menu_book</span><span>浏览</span></a>
+        <a href="my-borrows.html" class="nav-mob"><span class="material-symbols-outlined">history</span><span>借阅</span></a>
+        <a href="#" class="nav-mob" @click.prevent="logout"><span class="material-symbols-outlined">logout</span><span>退出</span></a>
+    </nav>
+</div>
+
+<script>
+    const { createApp, ref, computed, onMounted } = Vue;
+    const API_BASE = 'http://localhost:8000';
+
+    function authHeaders() {
+        const token = localStorage.getItem('token');
+        return { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) };
+    }
+
+    async function apiFetch(url, options = {}) {
+        const res = await fetch(`${API_BASE}${url}`, {
+            ...options,
+            headers: { ...authHeaders(), ...(options.headers || {}) }
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error(data.detail || `请求失败 (${res.status})`);
+        }
+        return data;
+    }
+
+    createApp({
+        setup() {
+            const user = ref(JSON.parse(localStorage.getItem('user') || '{}'));
+            const books = ref([]);
+            const searchQuery = ref('');
+            const activeCategory = ref('all');
+            const borrowingId = ref(null);
+            const loading = ref(false);
+
+            const categories = [
+                { label:'全部', value:'all' },
+                { label:'计算机科学', value:'cs' },
+                { label:'编程语言', value:'lang' },
+                { label:'算法', value:'algo' },
+                { label:'设计', value:'design' },
+            ];
+
+            const filteredBooks = computed(() => {
+                let list = books.value;
+                if (searchQuery.value) {
+                    const q = searchQuery.value.toLowerCase();
+                    list = list.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q));
+                }
+                return list;
+            });
+
+            async function fetchBooks() {
+                loading.value = true;
+                try {
+                    const data = await apiFetch('/api/books/available');
+                    books.value = data.books || [];
+                } catch (e) {
+                    ElementPlus.ElMessage.error('获取书籍列表失败: ' + e.message);
+                } finally {
+                    loading.value = false;
+                }
+            }
+
+            async function borrowBook(book) {
+                borrowingId.value = book.id;
+                try {
+                    const data = await apiFetch('/api/borrows', {
+                        method: 'POST',
+                        body: JSON.stringify({ book_id: book.id })
+                    });
+                    book.stock--;
+                    ElementPlus.ElMessage.success(`成功借阅《${book.title}》`);
+                } catch (e) {
+                    ElementPlus.ElMessage.error('借书失败: ' + e.message);
+                } finally {
+                    borrowingId.value = null;
+                }
+            }
+
+            function logout() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+
+            onMounted(() => {
+                if (!localStorage.getItem('token')) { window.location.href = 'login.html'; return; }
+                fetchBooks();
+            });
+
+            return { user, books, searchQuery, activeCategory, categories, filteredBooks, borrowingId, borrowBook, logout };
+        }
+    }).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

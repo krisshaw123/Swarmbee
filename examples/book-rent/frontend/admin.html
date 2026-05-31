@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员后台 · BookFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <style>
+        :root {
+            --p:#0049db; --pl:#dce1ff; --pc:#2962ff; --s:#f9f9ff; --sc:#fff;
+            --t:#111c2d; --tv:#434656; --rad:1rem; --rad-lg:1.5rem;
+            --shadow:0 4px 12px rgba(0,0,0,0.05);
+            --surface-high:#dee8ff; --outline:#c3c5d8;
+            --error:#ba1a1a;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#f9f9ff; color:var(--t); }
+        .font-lexend { font-family:'Lexend',sans-serif; }
+        ::-webkit-scrollbar { width:6px; }
+        ::-webkit-scrollbar-thumb { background:var(--outline); border-radius:10px; }
+
+        .sidebar { display:none; flex-direction:column; height:100vh; position:fixed; left:0; top:0; width:260px; background:#fff; border-right:1px solid #e5e7eb; padding:1rem; z-index:50; }
+        @media(min-width:768px){ .sidebar{display:flex;} }
+        .sidebar .logo { font:800 24px/1 'Lexend'; color:var(--t); margin-bottom:4px; }
+        .sidebar .logo span { color:var(--p); }
+        .nav-item { display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:var(--rad); color:var(--tv); transition:all 0.2s; cursor:pointer; }
+        .nav-item.active { background:var(--pc); color:#fff; font-weight:600; }
+        .nav-item:not(.active):hover { background:var(--surface-high); }
+        .user-section { border-top:1px solid #e5e7eb; margin-top:auto; padding-top:1rem; }
+
+        .main-content { min-height:100vh; padding:20px 16px 80px; }
+        @media(min-width:768px){ .main-content{margin-left:260px; padding:32px 40px 48px;} }
+
+        .stats-grid { display:grid; gap:20px; grid-template-columns:1fr; margin-bottom:32px; }
+        @media(min-width:640px){ .stats-grid{grid-template-columns:repeat(2,1fr);} }
+        @media(min-width:1024px){ .stats-grid{grid-template-columns:repeat(4,1fr);} }
+        .stat-card { background:#fff; border:1px solid #e5e7eb; border-radius:var(--rad-lg); padding:1.25rem; transition:0.2s; }
+        .stat-card:hover { box-shadow:var(--shadow); }
+        .stat-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; }
+        .stat-icon { background:var(--pc); color:#fff; padding:8px; border-radius:12px; display:inline-flex; }
+        .stat-value { font:700 36px/1 'Lexend'; margin-top:8px; }
+
+        .card-table { background:#fff; border:1px solid #e5e7eb; border-radius:1.5rem; overflow:hidden; margin-bottom:32px; }
+        .card-header { padding:1rem 1.5rem; border-bottom:1px solid #e5e7eb; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; }
+        .table-wrapper { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; }
+        th { text-align:left; padding:1rem 1.5rem; background:#f9f9ff; font-size:12px; font-weight:600; text-transform:uppercase; color:var(--tv); }
+        td { padding:1rem 1.5rem; border-bottom:1px solid #e5e7eb; vertical-align:middle; }
+        tr:last-child td { border-bottom:none; }
+        tr:hover td { background:#f0f3ff; }
+
+        .status-badge { display:inline-block; padding:4px 12px; border-radius:999px; font-size:11px; font-weight:700; }
+        .status-active { background:rgba(0,131,52,0.1); color:#008334; }
+        .status-inactive { background:rgba(186,26,26,0.1); color:#ba1a1a; }
+        .role-badge { padding:2px 10px; border-radius:6px; font-size:11px; font-weight:600; }
+        .role-admin { background:rgba(159,66,0,0.1); color:#9f4200; }
+        .role-provider { background:rgba(0,73,219,0.1); color:var(--p); }
+        .role-customer { background:rgba(0,131,52,0.1); color:#008334; }
+
+        .bottom-nav { position:fixed; bottom:0; left:0; width:100%; background:#fff; box-shadow:0 -4px 12px rgba(0,0,0,0.05); display:flex; justify-content:space-around; padding:10px 16px; z-index:50; }
+        @media(min-width:768px){ .bottom-nav{display:none;} }
+        .nav-mob { display:flex; flex-direction:column; align-items:center; text-decoration:none; color:var(--tv); cursor:pointer; }
+        .nav-mob.active { background:var(--pc); color:#fff; padding:4px 16px; border-radius:999px; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+        <div class="mb-6 px-2">
+            <div class="logo">Book<span>Flow</span></div>
+            <div style="font-size:12px; color:var(--tv);">管理员控制台</div>
+        </div>
+        <nav style="display:flex; flex-direction:column; gap:8px; flex:1;">
+            <div class="nav-item active" @click="activeSection='overview'"><span class="material-symbols-outlined">dashboard</span><span>系统概览</span></div>
+            <div class="nav-item" @click="activeSection='users'"><span class="material-symbols-outlined">group</span><span>用户管理</span></div>
+            <div class="nav-item" @click="activeSection='books'"><span class="material-symbols-outlined">menu_book</span><span>图书管理</span></div>
+            <div class="nav-item" @click="logout"><span class="material-symbols-outlined">logout</span><span>退出登录</span></div>
+        </nav>
+        <div class="user-section">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:40px; height:40px; border-radius:999px; background:var(--surface-high); display:flex; align-items:center; justify-content:center;">
+                    <span class="material-symbols-outlined text-[#0049db]">admin_panel_settings</span>
+                </div>
+                <div><div style="font-weight:600;">{{user.nickname || '管理员'}}</div><div style="font-size:12px; color:var(--tv);">{{user.email}}</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容 -->
+    <main class="main-content">
+        <!-- 概览 -->
+        <div v-if="activeSection==='overview'">
+            <div class="flex justify-between items-center flex-wrap gap-4 mb-8">
+                <div><h2 class="font-lexend text-3xl font-bold">系统概览</h2><p style="color:var(--tv);">管理平台运营数据</p></div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header"><div class="stat-icon"><span class="material-symbols-outlined">group</span></div><span style="color:#008334; font-size:12px;">+5 本月</span></div>
+                    <div style="font-size:14px; color:var(--tv);">总用户数</div><div class="stat-value">{{stats.total_users}}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header"><div class="stat-icon" style="background:var(--tv);"><span class="material-symbols-outlined">menu_book</span></div><span style="color:#008334;">+12 本月</span></div>
+                    <div style="font-size:14px; color:var(--tv);">总图书数</div><div class="stat-value">{{stats.total_books}}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header"><div class="stat-icon" style="background:#008334;"><span class="material-symbols-outlined">handshake</span></div><span style="color:var(--error);">+8 本月</span></div>
+                    <div style="font-size:14px; color:var(--tv);">借阅中</div><div class="stat-value">{{stats.active_borrows}}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header"><div class="stat-icon" style="background:#9f4200;"><span class="material-symbols-outlined">assignment_returned</span></div><span style="color:#008334;">+32 本月</span></div>
+                    <div style="font-size:14px; color:var(--tv);">总借阅次数</div><div class="stat-value">{{stats.total_borrows}}</div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- 最新用户 -->
+                <div class="card-table">
+                    <div class="card-header"><h3 class="font-lexend font-bold text-lg">最新用户</h3></div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>邮箱</th><th>角色</th><th>注册时间</th></tr></thead>
+                            <tbody>
+                                <tr v-for="u in recentUsers" :key="u.id">
+                                    <td style="font-weight:500;">{{u.email}}</td>
+                                    <td><span class="role-badge" :class="'role-'+u.role">{{roleLabel(u.role)}}</span></td>
+                                    <td style="font-size:13px; color:var(--tv); white-space:nowrap;">{{u.created_at}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- 热门图书 -->
+                <div class="card-table">
+                    <div class="card-header"><h3 class="font-lexend font-bold text-lg">热门图书</h3></div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead><tr><th>书名</th><th>作者</th><th>借阅次数</th></tr></thead>
+                            <tbody>
+                                <tr v-for="(b, idx) in hotBooks" :key="b.id">
+                                    <td style="font-weight:500; white-space:nowrap;">{{b.title}}</td>
+                                    <td style="font-size:13px; color:var(--tv);">{{b.author}}</td>
+                                    <td style="font-weight:600; color:#0049db;">{{b.stock || 0}} 本在库</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户管理 -->
+        <div v-if="activeSection==='users'">
+            <div class="flex justify-between items-center flex-wrap gap-4 mb-8">
+                <div><h2 class="font-lexend text-3xl font-bold">用户管理</h2><p style="color:var(--tv);">管理系统注册用户</p></div>
+                <input v-model="userSearch" type="text" placeholder="搜索用户..."
+                    class="px-4 py-2 rounded-xl border border-gray-200 text-sm focus:border-[#0049db] focus:ring-2 focus:ring-[#0049db]/10 outline-none w-48">
+            </div>
+            <div class="card-table">
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>邮箱</th><th>昵称</th><th>角色</th><th>注册时间</th><th class="text-right">操作</th></tr></thead>
+                        <tbody>
+                            <tr v-for="u in filteredUsers" :key="u.id">
+                                <td style="font-weight:500;">{{u.email}}</td>
+                                <td>{{u.nickname || '-'}}</td>
+                                <td><span class="role-badge" :class="'role-'+u.role">{{roleLabel(u.role)}}</span></td>
+                                <td style="font-size:13px; color:var(--tv); white-space:nowrap;">{{u.created_at}}</td>
+                                <td class="text-right">
+                                    <el-popconfirm title="确定删除该用户？" @confirm="deleteUser(u)">
+                                        <template #reference>
+                                            <button class="inline-flex items-center gap-1 text-sm px-3 py-1.5 rounded-lg text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition-all">
+                                                <span class="material-symbols-outlined text-base">delete</span>删除
+                                            </button>
+                                        </template>
+                                    </el-popconfirm>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图书管理 -->
+        <div v-if="activeSection==='books'">
+            <div class="flex justify-between items-center flex-wrap gap-4 mb-8">
+                <div><h2 class="font-lexend text-3xl font-bold">图书管理</h2><p style="color:var(--tv);">全局图书状态管控</p></div>
+                <input v-model="bookSearch" type="text" placeholder="搜索图书..."
+                    class="px-4 py-2 rounded-xl border border-gray-200 text-sm focus:border-[#0049db] focus:ring-2 focus:ring-[#0049db]/10 outline-none w-48">
+            </div>
+            <div class="card-table">
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>书名 / 作者</th><th>提供方</th><th>库存</th><th>状态</th><th class="text-right">操作</th></tr></thead>
+                        <tbody>
+                            <tr v-for="b in filteredBooks" :key="b.id">
+                                <td><div style="font-weight:600;">{{b.title}}</div><div style="font-size:12px; color:var(--tv);">{{b.author}}</div></td>
+                                <td style="font-size:13px; color:var(--tv);">{{b.provider_name || '-'}}</td>
+                                <td><span :class="b.stock>0?'text-green-600':'text-red-500'">{{b.stock}}</span></td>
+                                <td>
+                                    <span class="status-badge" :class="b.status==='active'?'status-active':'status-inactive'">
+                                        {{b.status==='active'?'上架中':'已下架'}}
+                                    </span>
+                                </td>
+                                <td class="text-right">
+                                    <el-dropdown trigger="click" @command="(cmd) => handleBookAction(cmd, b)">
+                                        <button class="inline-flex items-center gap-1 text-sm px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all">
+                                            操作 <span class="material-symbols-outlined text-base">expand_more</span>
+                                        </button>
+                                        <template #dropdown>
+                                            <el-dropdown-menu>
+                                                <el-dropdown-item command="toggle">{{b.status==='active'?'下架':'上架'}}</el-dropdown-item>
+                                                <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+                                            </el-dropdown-menu>
+                                        </template>
+                                    </el-dropdown>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <div class="nav-mob" :class="activeSection==='overview'?'active':''" @click="activeSection='overview'"><span class="material-symbols-outlined">dashboard</span><span>概览</span></div>
+        <div class="nav-mob" :class="activeSection==='users'?'active':''" @click="activeSection='users'"><span class="material-symbols-outlined">group</span><span>用户</span></div>
+        <div class="nav-mob" :class="activeSection==='books'?'active':''" @click="activeSection='books'"><span class="material-symbols-outlined">menu_book</span><span>图书</span></div>
+        <div class="nav-mob" @click="logout"><span class="material-symbols-outlined">logout</span><span>退出</span></div>
+    </nav>
+</div>
+
+<script>
+    const { createApp, ref, computed, onMounted } = Vue;
+    const API_BASE = 'http://localhost:8000';
+
+    function authHeaders() {
+        const token = localStorage.getItem('token');
+        return { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) };
+    }
+
+    async function apiFetch(url, options = {}) {
+        const res = await fetch(`${API_BASE}${url}`, {
+            ...options,
+            headers: { ...authHeaders(), ...(options.headers || {}) }
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error(data.detail || `请求失败 (${res.status})`);
+        }
+        return data;
+    }
+
+    createApp({
+        setup() {
+            const user = ref(JSON.parse(localStorage.getItem('user') || '{}'));
+            const activeSection = ref('overview');
+            const users = ref([]);
+            const allBooks = ref([]);
+            const userSearch = ref('');
+            const bookSearch = ref('');
+            const loading = ref(false);
+
+            const stats = ref({ total_users: 0, total_books: 0, active_borrows: 0, total_borrows: 0 });
+
+            const filteredUsers = computed(() => {
+                if (!userSearch.value) return users.value;
+                const q = userSearch.value.toLowerCase();
+                return users.value.filter(u => u.email.toLowerCase().includes(q) || (u.nickname||'').toLowerCase().includes(q));
+            });
+
+            const filteredBooks = computed(() => {
+                if (!bookSearch.value) return allBooks.value;
+                const q = bookSearch.value.toLowerCase();
+                return allBooks.value.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q));
+            });
+
+            const recentUsers = computed(() => users.value.slice().reverse().slice(0, 4));
+            const hotBooks = computed(() => allBooks.value.filter(b => b.status === 'active').slice(0, 4));
+
+            function roleLabel(role) {
+                const map = { admin:'管理员', provider:'提供方', customer:'借阅者' };
+                return map[role] || role;
+            }
+
+            async function fetchData() {
+                loading.value = true;
+                try {
+                    const [statsData, usersData, booksData] = await Promise.all([
+                        apiFetch('/api/admin/stats'),
+                        apiFetch('/api/admin/users'),
+                        apiFetch('/api/admin/books')
+                    ]);
+                    users.value = usersData.users || [];
+                    allBooks.value = booksData.books || [];
+                    stats.value = { total_users: statsData.total_users, total_books: statsData.total_books, active_borrows: statsData.active_borrows, total_borrows: statsData.total_borrows };
+                } catch (e) {
+                    ElementPlus.ElMessage.error('获取管理数据失败: ' + e.message);
+                } finally {
+                    loading.value = false;
+                }
+            }
+
+            async function deleteUser(u) {
+                try {
+                    await apiFetch(`/api/admin/users/${u.id}`, { method: 'DELETE' });
+                    users.value = users.value.filter(x => x.id !== u.id);
+                    ElementPlus.ElMessage.success(`已删除用户 ${u.email}`);
+                } catch (e) {
+                    ElementPlus.ElMessage.error('删除用户失败: ' + e.message);
+                }
+            }
+
+            async function handleBookAction(cmd, book) {
+                try {
+                    if (cmd === 'toggle') {
+                        const newStatus = book.status === 'active' ? 'inactive' : 'active';
+                        await apiFetch(`/api/admin/books/${book.id}/status`, {
+                            method: 'PUT',
+                            body: JSON.stringify({ status: newStatus })
+                        });
+                        book.status = newStatus;
+                        ElementPlus.ElMessage.success(`图书已${newStatus==='active'?'上架':'下架'}`);
+                    } else if (cmd === 'delete') {
+                        await apiFetch(`/api/admin/books/${book.id}`, { method: 'DELETE' });
+                        allBooks.value = allBooks.value.filter(b => b.id !== book.id);
+                        ElementPlus.ElMessage.success(`已删除图书《${book.title}》`);
+                    }
+                } catch (e) {
+                    ElementPlus.ElMessage.error('操作失败: ' + e.message);
+                }
+            }
+
+            function logout() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+
+            onMounted(() => {
+                if (!localStorage.getItem('token')) { window.location.href = 'login.html'; return; }
+                fetchData();
+            });
+
+            return { user, activeSection, users, allBooks, userSearch, bookSearch, stats, filteredUsers, filteredBooks, recentUsers, hotBooks, roleLabel, deleteUser, handleBookAction, logout };
+        }
+    }).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

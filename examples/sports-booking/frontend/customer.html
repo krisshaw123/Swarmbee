@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C端浏览 · SportFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#f8fafb;color:#1a2332}
+        .font-lexend{font-family:'Lexend',sans-serif}
+        :root{--b1:#0057b3;--b2:#0078d4;--g1:#00a86b;--text2:#5a6b7d}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes scaleIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+        @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+        @keyframes ripple{to{transform:scale(4);opacity:0}}
+        @keyframes cardFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+        @keyframes iconBounce{0%,100%{transform:scale(1)}50%{transform:scale(1.15) rotate(-5deg)}}
+        .anim-fadeUp{animation:fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards;opacity:0}
+        .anim-scaleIn{animation:scaleIn 0.4s cubic-bezier(0.16,1,0.3,1) forwards;opacity:0}
+        .skeleton{background:linear-gradient(90deg,#e5e7eb 25%,#f0f3ff 50%,#e5e7eb 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:0.75rem}
+        .glass{background:rgba(255,255,255,0.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.2)}
+        .ripple-btn{position:relative;overflow:hidden;cursor:pointer}
+        .ripple-btn .ripple-effect{position:absolute;border-radius:50%;background:rgba(255,255,255,0.35);transform:scale(0);animation:ripple 0.6s linear;pointer-events:none}
+        .card-glow{transition:all 0.4s cubic-bezier(0.16,1,0.3,1)}
+        .card-glow:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,87,179,0.12)!important}
+
+        .header{display:flex;justify-content:space-between;align-items:center;padding:16px;position:sticky;top:0;z-index:40;background:rgba(255,255,255,0.8);backdrop-filter:blur(16px);border-bottom:1px solid rgba(0,0,0,0.04)}
+        @media(min-width:768px){.header{padding:16px 32px}}
+        .hero-bar{padding:40px 0 32px;background:linear-gradient(135deg,#0057b3,#0078d4,#00a86b,#34d399);background-size:300% 300%;animation:gradientShift 8s ease infinite;position:relative;overflow:hidden}
+        .hero-bar::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 40%,rgba(255,255,255,0.08) 0%,transparent 50%),radial-gradient(circle at 80% 60%,rgba(255,255,255,0.05) 0%,transparent 50%)}
+        @keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+        .venue-grid{display:grid;gap:24px;grid-template-columns:1fr}
+        @media(min-width:640px){.venue-grid{grid-template-columns:repeat(2,1fr)}}
+        @media(min-width:1024px){.venue-grid{grid-template-columns:repeat(3,1fr)}}
+        .venue-card{background:#fff;border-radius:1.5rem;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.05);transition:all 0.4s cubic-bezier(0.16,1,0.3,1);border:1px solid rgba(0,0,0,0.04)}
+        .venue-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,87,179,0.12);border-color:rgba(0,87,179,0.15)}
+        .venue-cover{position:relative;height:180px;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:all 0.4s}
+        .venue-card:hover .venue-cover .type-icon{animation:iconBounce 0.6s ease}
+        .price-badge{position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.9);backdrop-filter:blur(8px);padding:4px 14px;border-radius:999px;font-weight:700;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+        .type-tag{position:absolute;top:12px;left:12px;padding:4px 14px;border-radius:999px;font-size:11px;font-weight:700;backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+        .venue-info{padding:20px}
+        .btn-book{background:linear-gradient(135deg,var(--b1),var(--b2));color:#fff;border:none;padding:8px 22px;border-radius:1rem;font-weight:600;font-size:13px;cursor:pointer;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden}
+        .btn-book:hover{box-shadow:0 6px 16px rgba(0,87,179,0.3);transform:scale(0.97)}
+        .btn-book:disabled{background:#c3c5d8;cursor:not-allowed;transform:none;box-shadow:none}
+        .bottom-nav{position:fixed;bottom:0;left:0;width:100%;background:rgba(255,255,255,0.9);backdrop-filter:blur(12px);box-shadow:0 -4px 20px rgba(0,0,0,0.06);display:flex;justify-content:space-around;padding:10px 16px;z-index:50}
+        @media(min-width:768px){.bottom-nav{display:none}}
+        .nav-mob{display:flex;flex-direction:column;align-items:center;text-decoration:none;color:#5a6b7d;cursor:pointer;transition:all 0.3s cubic-bezier(0.16,1,0.3,1)}
+        .nav-mob.active{background:linear-gradient(135deg,var(--b1),var(--b2));color:#fff;padding:4px 16px;border-radius:999px;transform:scale(1.05)}
+    </style>
+</head>
+<body>
+<div id="app">
+    <header class="header anim-fadeUp">
+        <div class="flex items-center gap-2"><span class="material-symbols-outlined text-2xl" style="color:var(--b1)">sports_soccer</span><span class="font-lexend text-xl font-bold">Sport<span style="color:var(--b1)">Flow</span></span></div>
+        <div class="hidden md:flex items-center gap-8">
+            <a href="customer.html" class="text-sm font-medium pb-1 relative" style="color:var(--b1)">浏览场馆<span class="absolute bottom-0 left-0 right-0 h-0.5 rounded-full" style="background:linear-gradient(90deg,var(--b1),var(--g1))"></span></a>
+            <a href="my-bookings.html" class="text-sm font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:rounded-full after:transition-all after:duration-300 hover:after:w-full" style="color:var(--text2)">我的预约</a>
+            <a href="#" class="text-sm font-medium hover:text-[var(--b1)] transition-colors" style="color:var(--text2)" @click.prevent="logout">退出</a>
+        </div>
+        <span class="text-sm hidden sm:block" style="color:var(--text2)">你好，{{user.nickname}}</span>
+    </header>
+
+    <div class="hero-bar anim-fadeUp d1">
+        <div class="max-w-7xl mx-auto px-4 sm:px-8 relative z-10">
+            <h1 class="font-lexend text-3xl md:text-4xl font-bold text-white">发现身边的运动场馆</h1>
+            <p class="text-white/75 mt-1">按类型筛选，找到最适合的场地</p>
+            <div class="flex gap-3 mt-5 flex-wrap">
+                <div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><span class="material-symbols-outlined text-lg">search</span></span>
+                <input v-model="searchQuery" type="text" placeholder="搜索场馆或位置..." class="pl-10 pr-4 py-2.5 rounded-xl border-0 text-sm outline-none w-56 sm:w-72 transition-all duration-300 focus:shadow-lg bg-white/90 backdrop-blur-sm"></div>
+                <select v-model="typeFilter" class="px-4 py-2.5 rounded-xl border-0 text-sm outline-none bg-white/90 backdrop-blur-sm transition-all duration-300 focus:shadow-lg cursor-pointer">
+                    <option value="">全部类型</option><option v-for="t in ['篮球','足球','羽毛球','乒乓球','游泳','综合体育']" :key="t" :value="t">{{t}}</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-8 pb-28">
+        <!-- Skeleton -->
+        <div v-if="loading" class="venue-grid">
+            <div v-for="i in 6" :key="i" class="venue-card p-0" style="animation:scaleIn 0.3s ease forwards;animation-delay:0s"><div class="skeleton" style="height:180px;border-radius:0;margin:0"></div><div class="p-5"><div class="skeleton" style="height:20px;width:70%;margin-bottom:8px"></div><div class="skeleton" style="height:14px;width:50%;margin-bottom:12px"></div><div class="skeleton" style="height:14px;width:40%"></div></div></div>
+        </div>
+        <div v-else class="venue-grid anim-fadeUp d2">
+            <div v-for="(v,i) in filteredVenues" :key="v.id" class="venue-card" :style="{animationDelay:`${i*0.05}s`}">
+                <div class="venue-cover" :style="{background:v.gradient||'linear-gradient(135deg,#eaf4ff,#e8faf0)'}">
+                    <span class="material-symbols-outlined type-icon" :style="{color:v.iconColor||'#0057b3',fontSize:'56px',opacity:0.7}">{{v.icon||'sports_soccer'}}</span>
+                    <span class="type-tag" :style="{background:'rgba(255,255,255,0.85)',color:v.iconColor||'#0057b3'}">{{v.type}}</span>
+                    <span class="price-badge" style="color:var(--b1)">¥{{v.price_per_hour}}<span class="text-xs font-normal">/时</span></span>
+                </div>
+                <div class="venue-info">
+                    <div class="venue-name font-lexend font-semibold text-lg">{{v.name}}</div>
+                    <div class="flex items-center gap-1 text-sm" style="color:var(--text2);margin:4px 0 6px"><span class="material-symbols-outlined text-base">location_on</span>{{v.location}}</div>
+                    <div class="flex items-center gap-1 text-xs" style="color:var(--text2)"><span class="material-symbols-outlined text-sm">groups</span>可容纳 {{v.capacity}} 人</div>
+                    <div class="mt-4 pt-3 border-t border-gray-50 flex justify-between items-center">
+                        <span class="text-xs" style="color:var(--text2)">{{v.description?v.description.slice(0,24)+(v.description.length>24?'...':''):''}}</span>
+                        <button class="btn-book ripple-btn" @click="openBooking(v)">预约</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="!loading && filteredVenues.length===0" class="text-center py-20 anim-fadeUp">
+            <span class="material-symbols-outlined text-6xl text-gray-200 mb-4" style="font-size:72px">search_off</span>
+            <p style="color:var(--text2)">没有找到匹配的场馆</p>
+            <button @click="searchQuery='';typeFilter=''" class="mt-3 text-sm font-semibold" style="color:var(--b1)">清除筛选 →</button>
+        </div>
+    </main>
+
+    <el-dialog v-model="showBookingDialog" title="预约场馆" width="480px" top="8vh" :close-on-click-modal="false">
+        <div v-if="bookingVenue" class="mb-4 p-4 rounded-xl" style="background:linear-gradient(135deg,#f0f9ff,#f0fdf4);border:1px solid rgba(0,168,107,0.1)">
+            <div class="flex items-center gap-3"><span class="material-symbols-outlined text-2xl" :style="{color:bookingVenue.iconColor||'var(--b1)'}">{{bookingVenue.icon||'sports_soccer'}}</span><div><div class="font-semibold">{{bookingVenue.name}}</div><div class="text-xs" style="color:var(--text2)">{{bookingVenue.location}} · ¥{{bookingVenue.price_per_hour}}/时</div></div></div>
+        </div>
+        <el-form :model="bookingForm" label-width="80px">
+            <el-form-item label="预约日期"><el-date-picker v-model="bookingForm.date" type="date" placeholder="选择日期" value-format="YYYY-MM-DD" style="width:100%"></el-date-picker></el-form-item>
+            <el-form-item label="时段"><el-select v-model="bookingForm.time_slot" placeholder="选择时段" style="width:100%"><el-option v-for="s in ['08:00-10:00','10:00-12:00','12:00-14:00','14:00-16:00','16:00-18:00','18:00-20:00','20:00-22:00']" :key="s" :label="s" :value="s"></el-option></el-select></el-form-item>
+        </el-form>
+        <template #footer>
+            <el-button @click="showBookingDialog=false">取消</el-button>
+            <el-button type="primary" @click="submitBooking" :loading="bookingLoading" style="background:linear-gradient(135deg,#0057b3,#0078d4);border:none">确认预约</el-button>
+        </template>
+    </el-dialog>
+
+    <nav class="bottom-nav">
+        <a href="customer.html" class="nav-mob active"><span class="material-symbols-outlined">stadium</span><span>浏览</span></a>
+        <a href="my-bookings.html" class="nav-mob"><span class="material-symbols-outlined">event</span><span>预约</span></a>
+        <a href="#" class="nav-mob" @click.prevent="logout"><span class="material-symbols-outlined">logout</span><span>退出</span></a>
+    </nav>
+</div>
+
+<script>
+    const{createApp,ref,computed,onMounted}=Vue;
+    const API_BASE='http://localhost:8000';
+    function authHeaders(){const t=localStorage.getItem('token');return{'Content-Type':'application/json',...(t?{'Authorization':`Bearer ${t}`}:{})}}
+    async function apiFetch(url,opts={}){const res=await fetch(`${API_BASE}${url}`,{...opts,headers:{...authHeaders(),...(opts.headers||{})}});const d=await res.json();if(!res.ok)throw new Error(d.detail||`请求失败 (${res.status})`);return d}
+    const TYPE_STYLES={
+        '篮球':{icon:'sports_basketball',g:'linear-gradient(135deg,#fff3e0,#ffe0b2)',c:'#e65100'},
+        '足球':{icon:'sports_soccer',g:'linear-gradient(135deg,#e8faf0,#c8e6c9)',c:'#2e7d32'},
+        '羽毛球':{icon:'sports_tennis',g:'linear-gradient(135deg,#e3f2fd,#bbdefb)',c:'#1565c0'},
+        '乒乓球':{icon:'sports_kabaddi',g:'linear-gradient(135deg,#fff7ed,#ffedd5)',c:'#c2410c'},
+        '游泳':{icon:'pool',g:'linear-gradient(135deg,#e0f7fa,#b2ebf2)',c:'#00838f'},
+        '综合体育':{icon:'fitness_center',g:'linear-gradient(135deg,#f3e5f5,#ce93d8)',c:'#6a1b9a'},
+    };
+    createApp({setup(){
+        const user=ref(JSON.parse(localStorage.getItem('user')||'{}'));const venues=ref([]);const searchQuery=ref('');const typeFilter=ref('');const loading=ref(true)
+        const showBookingDialog=ref(false);const bookingVenue=ref(null);const bookingLoading=ref(false);const bookingForm=ref({date:'',time_slot:''})
+        const filteredVenues=computed(()=>{
+            let list=venues.value.map(v=>{const s=TYPE_STYLES[v.type]||{};return{...v,icon:s.icon||'sports_soccer',gradient:s.g||'linear-gradient(135deg,#eaf4ff,#e8faf0)',iconColor:s.c||'#0057b3'}})
+            if(searchQuery.value){const q=searchQuery.value.toLowerCase();list=list.filter(v=>v.name.toLowerCase().includes(q)||v.location.toLowerCase().includes(q))}
+            if(typeFilter.value)list=list.filter(v=>v.type===typeFilter.value);return list
+        })
+        async function fetchVenues(){loading.value=true;try{const d=await apiFetch('/api/venues/available');venues.value=d.venues||[]}catch(e){ElementPlus.ElMessage.error('获取场馆列表失败: '+e.message)}finally{loading.value=false}}
+        function openBooking(v){bookingVenue.value=v;bookingForm.value={date:'',time_slot:''};showBookingDialog.value=true}
+        async function submitBooking(){if(!bookingForm.value.date||!bookingForm.value.time_slot){ElementPlus.ElMessage.warning('请选择日期和时段');return}bookingLoading.value=true;try{await apiFetch('/api/bookings',{method:'POST',body:JSON.stringify({venue_id:bookingVenue.value.id,date:bookingForm.value.date,time_slot:bookingForm.value.time_slot})});ElementPlus.ElMessage.success(`成功预约「${bookingVenue.value.name}」${bookingForm.value.date} ${bookingForm.value.time_slot}`);showBookingDialog.value=false}catch(e){ElementPlus.ElMessage.error('预约失败: '+e.message)}finally{bookingLoading.value=false}}
+        function logout(){localStorage.removeItem('token');localStorage.removeItem('user');window.location.href='login.html'}
+        onMounted(()=>{if(!localStorage.getItem('token')){window.location.href='login.html';return}fetchVenues()})
+        return{user,venues,searchQuery,typeFilter,filteredVenues,loading,showBookingDialog,bookingVenue,bookingLoading,bookingForm,openBooking,submitBooking,logout}
+    }}).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>

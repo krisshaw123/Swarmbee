@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的借阅 · BookFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <style>
+        :root {
+            --p:#0049db; --pl:#dce1ff; --pc:#2962ff; --s:#f9f9ff; --sc:#fff;
+            --t:#111c2d; --tv:#434656; --rad:1rem;
+            --shadow:0 4px 12px rgba(0,0,0,0.05);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:#f9f9ff; color:var(--t); }
+        .font-lexend { font-family:'Lexend',sans-serif; }
+
+        .header { display:flex; justify-content:space-between; align-items:center; padding:16px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.03); position:sticky; top:0; z-index:40; }
+        @media(min-width:768px){ .header{padding:16px 32px;} }
+        .logo { font:700 24px/1 'Lexend',sans-serif; color:var(--t); }
+        .logo span { color:var(--p); }
+
+        .page-hero { padding:32px 0; }
+        .page-hero h1 { font:700 32px/1.2 'Lexend'; }
+        .page-hero p { color:var(--tv); margin-top:4px; }
+
+        .stat-bar { display:grid; gap:16px; grid-template-columns:repeat(3,1fr); margin-bottom:32px; }
+        .stat-item { background:#fff; border:1px solid #e5e7eb; border-radius:1rem; padding:16px; text-align:center; }
+        .stat-item .val { font:700 28px/1 'Lexend'; }
+        .stat-item .lbl { font-size:12px; color:var(--tv); margin-top:4px; }
+
+        .tabs { display:flex; gap:0; margin-bottom:24px; background:#fff; border-radius:1rem; padding:4px; border:1px solid #e5e7eb; }
+        .tab-btn { flex:1; padding:10px 20px; border-radius:0.75rem; font-size:14px; font-weight:600; border:none; cursor:pointer; transition:all 0.2s; background:transparent; color:var(--tv); }
+        .tab-btn.active { background:var(--p); color:#fff; }
+        .tab-btn:not(.active):hover { background:#f0f3ff; }
+
+        .borrow-card { background:#fff; border-radius:1.5rem; padding:20px; box-shadow:var(--shadow); border:1px solid rgba(0,0,0,0.04); margin-bottom:16px; display:flex; flex-wrap:wrap; gap:16px; align-items:center; transition:all 0.2s; }
+        .borrow-card:hover { box-shadow:0 8px 20px rgba(0,73,219,0.1); }
+
+        .book-icon { width:56px; height:56px; background:linear-gradient(135deg,#dce1ff,#f0f3ff); border-radius:1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .book-icon span { font-size:28px; color:var(--p); }
+
+        .status-badge { display:inline-flex; align-items:center; gap:4px; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:700; }
+        .status-borrowed { background:rgba(0,73,219,0.1); color:var(--p); }
+        .status-returned { background:rgba(0,131,52,0.1); color:#008334; }
+        .status-overdue { background:rgba(186,26,26,0.1); color:#ba1a1a; }
+
+        .btn-return { background:var(--p); color:#fff; border:none; padding:8px 20px; border-radius:var(--rad); font-weight:600; font-size:13px; cursor:pointer; transition:all 0.2s; }
+        .btn-return:hover { box-shadow:0 4px 12px rgba(0,73,219,0.3); transform:scale(0.97); }
+        .btn-return:disabled { background:#c3c5d8; cursor:not-allowed; transform:none; }
+
+        .bottom-nav { position:fixed; bottom:0; left:0; width:100%; background:#fff; box-shadow:0 -4px 12px rgba(0,0,0,0.05); display:flex; justify-content:space-around; padding:10px 16px; z-index:50; }
+        @media(min-width:768px){ .bottom-nav{display:none;} }
+        .nav-mob { display:flex; flex-direction:column; align-items:center; text-decoration:none; color:var(--tv); cursor:pointer; }
+        .nav-mob.active { background:var(--pc); color:#fff; padding:4px 16px; border-radius:999px; }
+    </style>
+</head>
+<body>
+<div id="app">
+    <header class="header">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-2xl text-[#0049db]">auto_stories</span>
+            <span class="logo">Book<span>Flow</span></span>
+        </div>
+        <div class="hidden md:flex items-center gap-8">
+            <a href="customer.html" class="text-sm font-medium text-[#434656] hover:text-[#0049db]">浏览图书</a>
+            <a href="my-borrows.html" class="text-sm font-medium text-[#0049db] border-b-2 border-[#0049db] pb-1">我的借阅</a>
+            <a href="#" class="text-sm font-medium text-[#434656] hover:text-[#0049db]" @click.prevent="logout">退出</a>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="text-sm text-[#434656]">你好，{{user.nickname}}</span>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-8 pb-24">
+        <div class="page-hero">
+            <h1>我的借阅</h1>
+            <p>查看您的借书历史与当前借阅状态</p>
+        </div>
+
+        <!-- 统计 -->
+        <div class="stat-bar">
+            <div class="stat-item"><div class="val" style="color:var(--p)">{{stats.borrowing}}</div><div class="lbl">借阅中</div></div>
+            <div class="stat-item"><div class="val" style="color:#008334">{{stats.returned}}</div><div class="lbl">已归还</div></div>
+            <div class="stat-item"><div class="val">{{stats.total}}</div><div class="lbl">总计</div></div>
+        </div>
+
+        <!-- 标签切换 -->
+        <div class="tabs">
+            <button class="tab-btn" :class="activeTab==='all'?'active':''" @click="activeTab='all'">全部</button>
+            <button class="tab-btn" :class="activeTab==='borrowing'?'active':''" @click="activeTab='borrowing'">借阅中</button>
+            <button class="tab-btn" :class="activeTab==='returned'?'active':''" @click="activeTab='returned'">已归还</button>
+        </div>
+
+        <!-- 借阅列表 -->
+        <div v-if="filteredBorrows.length===0" class="text-center py-16">
+            <span class="material-symbols-outlined text-6xl text-gray-300 mb-4">history</span>
+            <p class="text-[#434656]">暂无借阅记录</p>
+            <a href="customer.html" class="inline-flex items-center gap-1 text-sm text-[#0049db] font-semibold mt-2">去浏览图书</a>
+        </div>
+
+        <div v-for="item in filteredBorrows" :key="item.id" class="borrow-card">
+            <div class="book-icon"><span class="material-symbols-outlined">auto_stories</span></div>
+            <div style="flex:1; min-width:160px;">
+                <div class="font-lexend font-semibold">{{item.book_title}}</div>
+                <div class="text-xs text-[#434656] mt-1">借阅日期：{{item.borrow_date}}</div>
+                <div v-if="item.return_date" class="text-xs text-[#434656]">归还日期：{{item.return_date}}</div>
+            </div>
+            <div>
+                <span class="status-badge" :class="item.status==='borrowed'?'status-borrowed':item.status==='overdue'?'status-overdue':'status-returned'">
+                    <span class="material-symbols-outlined text-xs">{{item.status==='borrowed'?'hourglass_top':item.status==='overdue'?'warning':'check_circle'}}</span>
+                    {{item.status==='borrowed'?'借阅中':item.status==='overdue'?'逾期未还':'已归还'}}
+                </span>
+            </div>
+            <div>
+                <button v-if="item.status==='borrowed'||item.status==='overdue'"
+                    class="btn-return" @click="returnBook(item)" :disabled="returningId===item.id">
+                    <span v-if="returningId===item.id" class="inline-block w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    <span v-else>还书</span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <a href="customer.html" class="nav-mob"><span class="material-symbols-outlined">menu_book</span><span>浏览</span></a>
+        <a href="my-borrows.html" class="nav-mob active"><span class="material-symbols-outlined">history</span><span>借阅</span></a>
+        <a href="#" class="nav-mob" @click.prevent="logout"><span class="material-symbols-outlined">logout</span><span>退出</span></a>
+    </nav>
+</div>
+
+<script>
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    const API_BASE = 'http://localhost:8000';
+
+    function authHeaders() {
+        const token = localStorage.getItem('token');
+        return { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) };
+    }
+
+    async function apiFetch(url, options = {}) {
+        const res = await fetch(`${API_BASE}${url}`, {
+            ...options,
+            headers: { ...authHeaders(), ...(options.headers || {}) }
+        });
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error(data.detail || `请求失败 (${res.status})`);
+        }
+        return data;
+    }
+
+    createApp({
+        setup() {
+            const user = ref(JSON.parse(localStorage.getItem('user') || '{}'));
+            const borrows = ref([]);
+            const activeTab = ref('all');
+            const returningId = ref(null);
+            const loading = ref(false);
+
+            const filteredBorrows = computed(() => {
+                if (activeTab.value === 'all') return borrows.value;
+                if (activeTab.value === 'borrowing') return borrows.value.filter(b => b.status === 'borrowed' || b.status === 'overdue');
+                return borrows.value.filter(b => b.status === 'returned');
+            });
+
+            const stats = computed(() => ({
+                borrowing: borrows.value.filter(b => b.status==='borrowed' || b.status==='overdue').length,
+                returned: borrows.value.filter(b => b.status==='returned').length,
+                total: borrows.value.length
+            }));
+
+            async function fetchBorrows() {
+                loading.value = true;
+                try {
+                    const data = await apiFetch('/api/borrows/my');
+                    borrows.value = data.borrows || [];
+                } catch (e) {
+                    ElementPlus.ElMessage.error('获取借阅记录失败: ' + e.message);
+                } finally {
+                    loading.value = false;
+                }
+            }
+
+            async function returnBook(item) {
+                returningId.value = item.id;
+                try {
+                    const data = await apiFetch(`/api/borrows/${item.id}/return`, {
+                        method: 'PUT'
+                    });
+                    item.status = 'returned';
+                    item.return_date = new Date().toISOString().slice(0,10);
+                    ElementPlus.ElMessage.success(`《${item.book_title}》已归还`);
+                } catch (e) {
+                    ElementPlus.ElMessage.error('还书失败: ' + e.message);
+                } finally {
+                    returningId.value = null;
+                }
+            }
+
+            function logout() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            }
+
+            onMounted(() => {
+                if (!localStorage.getItem('token')) { window.location.href = 'login.html'; return; }
+                fetchBorrows();
+            });
+
+            return { user, borrows, activeTab, filteredBorrows, stats, returningId, returnBook, logout };
+        }
+    }).use(ElementPlus).mount('#app');
+</script>
+</body>
+</html>
