@@ -148,9 +148,9 @@ chmod +x install.sh
 2. 加入官方微信群，在群内发送截图( ⭐ **Star**)，即可领取专属邀请码
 
 > 微信群入口：[点击加入微信群]扫描下方二维码  
-> ![微信群二维码]
+> 
 > <img src="videos/swarmbee_wechat_link.png" alt="微信群二维码" width="200">
-> *（请将以上链接和图片替换为实际的入群方式）*
+
 
 拿到邀请码后：
 - 访问 [幻境工坊](https://www.itswarmbee.com) 注册/登录
