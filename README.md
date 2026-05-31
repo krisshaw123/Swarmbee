@@ -133,8 +133,7 @@ openclaw gateway restart
 
 **邀请码领取方式：**
 1. 为本项目点一个 ⭐ **Star**，并 **Fork** 到你的 GitHub 仓库
-2. 截图（需包含 Star 和 Fork 状态）
-3. 加入官方微信群，在群内发送截图，即可领取专属邀请码
+2. 加入官方微信群，在群内发送截图( ⭐ **Star**)，即可领取专属邀请码
 
 > 微信群入口：[点击加入微信群](https://your-wechat-group-link) 或扫描下方二维码  
 > ![微信群二维码](path/to/wechat-qr.png)  
@@ -174,8 +173,8 @@ chmod +x install.sh
 
 | Role | GitHub |
 |:---|:---|
-| Lead | [@krisshaw123](https://github.com/krisshaw123) |
-| Core Dev | [@dingcheng-126](https://github.com/dingcheng-126) |
+| Lead/Architect | [@krisshaw123](https://github.com/krisshaw123) |
+| CoreBackendDev | [@dingcheng-126](https://github.com/dingcheng-126) |
 | Intern(s) | [@SYJ000](https://github.com/SYJ000) |
 
 
