@@ -111,6 +111,7 @@ configure_agent_names() {
 
   if [[ ${#agent_ids[@]} -eq 0 ]]; then
     warn "未检测到任何智能体，跳过名称配置。"
+    set -e
     return
   fi
 
@@ -128,7 +129,7 @@ configure_agent_names() {
 
     echo ""
     printf "  ${CYAN}%s${NC}%s\n" "$agent_id" "$hint"
-    read -r -p "  请输入飞书显示名称 (回车保留当前值): " input_name
+    read -r -p "  请输入飞书显示名称 (回车保留当前值): " input_name </dev/tty
 
     local final_name="$input_name"
     if [[ -z "$final_name" ]]; then
@@ -175,7 +176,7 @@ configure_game_group_ids() {
   local keep_going="y"
 
   while [[ "$keep_going" =~ ^[Yy]$ ]]; do
-    read -r -p "  请输入飞书群聊 ID (输入空值结束): " group_id
+    read -r -p "  请输入飞书群聊 ID (输入空值结束): " group_id </dev/tty
 
     if [[ -z "$group_id" ]]; then
       break
@@ -184,7 +185,7 @@ configure_game_group_ids() {
     game_group_ids+=("$group_id")
     ok "已添加: $group_id"
 
-    read -r -p "  是否继续添加? (y/n，默认 y): " keep_going
+    read -r -p "  是否继续添加? (y/n，默认 y): " keep_going </dev/tty
     keep_going="${keep_going:-y}"
   done
 
@@ -245,7 +246,7 @@ configure_agent_handoff() {
     max_rounds_hint=" [当前值: $existing_max_rounds]"
   fi
   printf "  maxRounds (最大任务深度)%s\n" "$max_rounds_hint"
-  read -r -p "  [默认: 100]: " max_rounds
+  read -r -p "  [默认: 100]: " max_rounds </dev/tty
   max_rounds="${max_rounds:-100}"
 
   # handoffStaggerMs
@@ -254,7 +255,7 @@ configure_agent_handoff() {
     stagger_hint=" [当前值: $existing_stagger_ms]"
   fi
   printf "  handoffStaggerMs (触发延迟毫秒)%s\n" "$stagger_hint"
-  read -r -p "  [默认: 500]: " handoff_stagger_ms
+  read -r -p "  [默认: 500]: " handoff_stagger_ms </dev/tty
   handoff_stagger_ms="${handoff_stagger_ms:-500}"
 
   # autoContinue
@@ -263,7 +264,7 @@ configure_agent_handoff() {
     auto_continue_hint=" [当前值: $existing_auto_continue]"
   fi
   printf "  autoContinue (自动继续)%s\n" "$auto_continue_hint"
-  read -r -p "  [默认: true]: " auto_continue
+  read -r -p "  [默认: true]: " auto_continue </dev/tty
   auto_continue="${auto_continue:-true}"
 
   # receiptTemplate
@@ -272,7 +273,7 @@ configure_agent_handoff() {
     receipt_hint=" [当前值: $existing_receipt_template]"
   fi
   printf "  receiptTemplate (回执模板)%s\n" "$receipt_hint"
-  read -r -p "  [默认: ${DEFAULT_RECEIPT_TEMPLATE}]: " receipt_template
+  read -r -p "  [默认: ${DEFAULT_RECEIPT_TEMPLATE}]: " receipt_template </dev/tty
   receipt_template="${receipt_template:-$DEFAULT_RECEIPT_TEMPLATE}"
 
   echo ""
