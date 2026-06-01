@@ -142,10 +142,15 @@ configure_agent_names() {
   done
 
   if [[ -n "$agent_updates" ]]; then
+    agent_updates="${agent_updates# | }"
     local tmp_json
     tmp_json="$(mktemp)"
-    jq "$agent_updates" "$OPENCLAW_JSON" > "$tmp_json" 2>/dev/null
-    mv "$tmp_json" "$OPENCLAW_JSON"
+    if ! jq "$agent_updates" "$OPENCLAW_JSON" > "$tmp_json" 2>/dev/null; then
+      warn "jq 更新智能体名称失败，跳过该步骤。"
+      rm -f "$tmp_json"
+    else
+      mv "$tmp_json" "$OPENCLAW_JSON"
+    fi
   fi
 
   ok "智能体飞书名称配置完成。"
@@ -201,10 +206,13 @@ configure_game_group_ids() {
 
     local tmp_json
     tmp_json="$(mktemp)"
-    jq ".channels.feishu.gameGroupIds = [$json_array]" "$OPENCLAW_JSON" > "$tmp_json" 2>/dev/null
-    mv "$tmp_json" "$OPENCLAW_JSON"
-
-    ok "已配置 ${#game_group_ids[@]} 个群聊 ID。"
+    if ! jq ".channels.feishu.gameGroupIds = [$json_array]" "$OPENCLAW_JSON" > "$tmp_json" 2>/dev/null; then
+      warn "jq 更新群聊 ID 失败，跳过该步骤。"
+      rm -f "$tmp_json"
+    else
+      mv "$tmp_json" "$OPENCLAW_JSON"
+      ok "已配置 ${#game_group_ids[@]} 个群聊 ID。"
+    fi
   else
     info "未添加新的群聊 ID，跳过更新。"
   fi
