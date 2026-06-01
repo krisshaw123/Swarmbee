@@ -98,6 +98,8 @@ backup_openclaw_json() {
 }
 
 configure_agent_names() {
+  set +e
+
   echo ""
   info "=============================================="
   info "  1/3 配置智能体飞书显示名称"
@@ -146,9 +148,12 @@ configure_agent_names() {
   fi
 
   ok "智能体飞书名称配置完成。"
+  set -e
 }
 
 configure_game_group_ids() {
+  set +e
+
   echo ""
   info "=============================================="
   info "  2/3 配置飞书群聊 ID (gameGroupIds)"
@@ -202,9 +207,12 @@ configure_game_group_ids() {
   else
     info "未添加新的群聊 ID，跳过更新。"
   fi
+  set -e
 }
 
 configure_agent_handoff() {
+  set +e
+
   echo ""
   info "=============================================="
   info "  3/3 配置 agentHandoff 协作参数"
@@ -304,6 +312,7 @@ with open('$tmp_json', 'w') as f:
   mv "$tmp_json" "$OPENCLAW_JSON"
 
   ok "agentHandoff 配置完成。"
+  set -e
 }
 
 print_handoff_summary() {
