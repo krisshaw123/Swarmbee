@@ -9,11 +9,13 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+SWARMBEE_DIR="$HOME/.swarmbee"
 OPENCLAW_JSON="$HOME/.openclaw/openclaw.json"
 EXTENSIONS_DIR="$HOME/.openclaw/extensions"
 LARK_DIR="$EXTENSIONS_DIR/openclaw-lark"
-ZIP_FILE="$SCRIPT_DIR/openclaw-lark.zip"
-BACKUP_DIR="$SCRIPT_DIR/backup"
+ZIP_URL="https://github.com/krisshaw123/Swarmbee/raw/main/openclaw-lark.zip"
+ZIP_FILE="$SWARMBEE_DIR/openclaw-lark.zip"
+BACKUP_DIR="$SWARMBEE_DIR/backup"
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP_LARK_DIR="$BACKUP_DIR/openclaw-lark-$TIMESTAMP"
 
@@ -34,8 +36,58 @@ warn() {
   echo -e "${YELLOW}[WARN]${NC} $1"
 }
 
+prompt_yes_no() {
+  local prompt="$1"
+  local answer
+  read -r -p "$prompt (y/n): " answer </dev/tty
+  echo ""
+  [[ "$answer" =~ ^[Yy]$ ]]
+}
+
+check_openclaw() {
+  info "正在检测 openclaw 环境..."
+
+  if command -v openclaw >/dev/null 2>&1; then
+    ok "检测到 openclaw 环境"
+    return 0
+  fi
+
+  warn "未检测到 openclaw 环境"
+  if prompt_yes_no "是否安装 openclaw？(curl -fsSL https://openclaw.ai/install.sh | bash)"; then
+    info "正在安装 openclaw..."
+    curl -fsSL https://openclaw.ai/install.sh | bash || fail "openclaw 安装失败"
+    ok "openclaw 安装完成"
+  else
+    info "用户选择不安装 openclaw，退出脚本"
+    exit 0
+  fi
+}
+
+check_openclaw_lark() {
+  info "正在检测 openclaw-lark 飞书环境..."
+
+  if npx -y @larksuite/openclaw-lark --version >/dev/null 2>&1 || [[ -d "$LARK_DIR" ]]; then
+    ok "检测到 openclaw-lark 飞书环境"
+    return 0
+  fi
+
+  warn "未检测到 openclaw-lark 飞书环境"
+  if prompt_yes_no "是否安装 openclaw-lark（飞书插件）？(npx -y @larksuite/openclaw-lark install)"; then
+    info "正在安装 openclaw-lark..."
+    npx -y @larksuite/openclaw-lark install || fail "openclaw-lark 安装失败"
+    ok "openclaw-lark 安装完成"
+  else
+    info "用户选择不安装 openclaw-lark，退出脚本"
+    exit 0
+  fi
+}
+
 check_prerequisites() {
   info "正在检查运行前提..."
+
+  check_openclaw
+
+  check_openclaw_lark
 
   command -v jq >/dev/null 2>&1 || fail "缺少 jq 命令，请先安装: brew install jq"
 
@@ -44,7 +96,10 @@ check_prerequisites() {
   fi
 
   if [[ ! -f "$ZIP_FILE" ]]; then
-    fail "未找到 openclaw-lark.zip，请确保此脚本与 openclaw-lark.zip 在同一目录"
+    info "未找到本地 openclaw-lark.zip，正在从 GitHub 下载..."
+    mkdir -p "$SWARMBEE_DIR"
+    curl -fL "$ZIP_URL" -o "$ZIP_FILE" || fail "下载 openclaw-lark.zip 失败: $ZIP_URL"
+    ok "已下载 openclaw-lark.zip"
   fi
 
   if [[ ! -f "$OPENCLAW_JSON" ]]; then
