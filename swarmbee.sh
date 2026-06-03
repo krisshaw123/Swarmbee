@@ -74,7 +74,7 @@ check_openclaw_lark() {
   warn "未检测到 openclaw-lark 飞书环境"
   if prompt_yes_no "是否安装 openclaw-lark（飞书插件）？(npx -y @larksuite/openclaw-lark install)"; then
     info "正在安装 openclaw-lark..."
-    npx -y @larksuite/openclaw-lark install || fail "openclaw-lark 安装失败"
+    npx -y @larksuite/openclaw-lark install </dev/tty || fail "openclaw-lark 安装失败"
     ok "openclaw-lark 安装完成"
   else
     info "用户选择不安装 openclaw-lark，退出脚本"
