@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+exec 0</dev/tty
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -39,7 +41,7 @@ warn() {
 prompt_yes_no() {
   local prompt="$1"
   local answer
-  read -r -p "$prompt (y/n): " answer </dev/tty
+  read -r -p "$prompt (y/n): " answer
   echo ""
   [[ "$answer" =~ ^[Yy]$ ]]
 }
@@ -55,7 +57,10 @@ check_openclaw() {
   warn "未检测到 openclaw 环境"
   if prompt_yes_no "是否安装 openclaw？(curl -fsSL https://openclaw.ai/install.sh | bash)"; then
     info "正在安装 openclaw..."
-    curl -fsSL https://openclaw.ai/install.sh | bash || fail "openclaw 安装失败"
+    local tmp_install="$(mktemp)"
+    curl -fsSL https://openclaw.ai/install.sh -o "$tmp_install" || fail "下载 openclaw 安装脚本失败"
+    bash "$tmp_install" || fail "openclaw 安装失败"
+    rm -f "$tmp_install"
     ok "openclaw 安装完成"
   else
     info "用户选择不安装 openclaw，退出脚本"
@@ -74,7 +79,7 @@ check_openclaw_lark() {
   warn "未检测到 openclaw-lark 飞书环境"
   if prompt_yes_no "是否安装 openclaw-lark（飞书插件）？(npx -y @larksuite/openclaw-lark install)"; then
     info "正在安装 openclaw-lark..."
-    npx -y @larksuite/openclaw-lark install </dev/tty || fail "openclaw-lark 安装失败"
+    npx -y @larksuite/openclaw-lark install || fail "openclaw-lark 安装失败"
     ok "openclaw-lark 安装完成"
   else
     info "用户选择不安装 openclaw-lark，退出脚本"
