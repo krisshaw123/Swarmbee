@@ -94,7 +94,7 @@ check_prerequisites() {
 
   check_openclaw_lark
 
-  command -v jq >/dev/null 2>&1 || fail "缺少 jq 命令，请先安装: brew install jq"
+  command -v jq >/dev/null 2>&1 || fail "缺少 jq 命令，请先安装 (macOS: brew install jq / Linux: apt install jq)"
 
   if ! command -v python3 >/dev/null 2>&1; then
     fail "缺少 python3 命令"
