@@ -113,8 +113,10 @@ cd my-team
 chmod +x install.sh
 ./install.sh
 ```
----视频教程
-| <img src="videos/AgentTeam_Setting_Example.mp4" width="240"><br>[🎬 高清视频](videos/AgentTeam_Setting_Example.mp4) 
+
+## 🎬 视频教程
+- 📹 [高清视频演示](videos/AgentTeam_Setting_Example.mp4) – 手把手带你完成团队部署
+- 📄 [文字版步骤](#quick-start) 见上文 Quick Start
 
 ### 3. 可用邀请码(不定期更新)
 cvadsfg!xa,grnrsd_@12*,adfdanhnh,cvadv4589!,fdghd**13_
