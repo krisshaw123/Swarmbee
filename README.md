@@ -95,7 +95,14 @@ openclaw gateway restart
 # 🚀 Quick Start
 
 如果你已经按照 [Install](#install) 完成了基础环境部署，想立刻拉起一个示例团队开始协作，只需两步：
-### 1. 本机一键部署
+### 1. 下载团队配置包运行安装脚本install.sh
+
+- 访问 [幻境工坊](https://www.itswarmbee.com) 注册/登录,邀请码在下面👇
+- 下载你需要的 Team 压缩包（如 `book-rent-team.zip`）
+
+***Caution: 也可下载完整install之后，自行配置AGENT团队！
+
+### 2. 本机一键部署
 
 ```bash
 # 解压团队配置包
@@ -106,26 +113,11 @@ cd my-team
 chmod +x install.sh
 ./install.sh
 ```
+---视频教程
+| <img src="videos/AgentTeam_Setting_Example.mp4" width="240"><br>[🎬 高清视频](videos/AgentTeam_Setting_Example.mp4) 
 
-
-### 2. 获取邀请码 & 团队配置包
-
-**邀请码领取方式：**
-1. 为本项目点一个 ⭐ **Star**，并 **Fork** 到你的 GitHub 仓库
-2. 加入官方微信群，在群内发送截图( ⭐ **Star**)，即可领取专属邀请码
-
-> 微信群入口：[点击加入微信群]扫描下方二维码  
-> 
-> <img src="videos/swarmbee_wechat_link.png" alt="微信群二维码" width="200">
-
-
-拿到邀请码后：
-- 访问 [幻境工坊](https://www.itswarmbee.com) 注册/登录
-- 使用邀请码激活团队权限
-- 下载你需要的 Team 压缩包（如 `book-rent-team.zip`）
-
-***Caution: 也可下载完整install之后，自行配置AGENT团队！
----
+### 3. 可用邀请码(不定期更新)
+cvadsfg!xa,grnrsd_@12*,adfdanhnh,cvadv4589!,fdghd**13_
 
 ---
 # 🤝 参与贡献
