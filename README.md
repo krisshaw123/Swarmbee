@@ -116,7 +116,6 @@ chmod +x install.sh
 
 ## 🎬 视频教程
 - 📹 [高清视频演示](videos/AgentTeam_Setting_Example.mp4) – 手把手带你完成团队部署
-- 📺 [B站演示地址](https://www.bilibili.com/video/BV1Ts7G64Enx/)
 - 📄 [文字版步骤](#quick-start) 见上文 Quick Start
 
 ### 3. 可用邀请码(不定期更新)
