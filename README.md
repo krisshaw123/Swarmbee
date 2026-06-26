@@ -84,8 +84,7 @@ curl -fsSL https://github.com/krisshaw123/Swarmbee/raw/main/swarmbee.sh | bash
 
 ## 第二步：在飞书开放平台创建 Agent 并绑定
 
-1. 前往 [飞书开放平台](https://open.feishu.cn/) 创建相应的Agent应用，获取 App ID 和 App Secret
-2. 在 OpenClaw 中完成飞书渠道绑定（使用飞书开放平台创建的 App ID 和 App Secret）
+前往 [飞书开放平台](https://open.feishu.cn/) 创建相应的Agent智能体，获取 App ID 和 App Secret
 
 ## 第三步：重启 OpenClaw
 
@@ -102,8 +101,6 @@ openclaw gateway restart
 - 访问 [幻境工坊](https://www.itswarmbee.com) 注册/登录,邀请码在下面👇
 - 下载你需要的 Team 压缩包（如 `book-rent-team.zip`）
 
-***Caution: 也可下载完整install之后，自行配置AGENT团队！
-
 ### 2. 本机一键配置
 
 ```bash
@@ -115,6 +112,7 @@ cd my-team
 chmod +x install.sh
 ./install.sh
 ```
+***Caution: 也可下载完整install之后，自行配置AGENT团队！
 
 ## 🎬 视频教程
 - 📹 [高清视频演示](videos/AgentTeam_Setting_Example.mp4) – 手把手带你完成团队部署
